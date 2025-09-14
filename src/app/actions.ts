@@ -3,7 +3,6 @@
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { validatePasswordStrength } from '@/ai/flows/password-strength-validation';
-import { generateTemporaryPassword } from '@/ai/flows/password-reset';
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -97,26 +96,9 @@ export async function resetPassword(prevState: ResetPasswordState, formData: For
     if (!validatedFields.success) {
         return { error: 'Please enter a valid email address.' };
     }
-
-    const { email } = validatedFields.data;
-
-    try {
-        const { password: newPassword, token } = await generateTemporaryPassword();
-        
-        // This is a placeholder. In a real app, you would:
-        // 1. Find the user by email in your database.
-        // 2. If the user exists, save the hashed reset `token` and its expiry.
-        // 3. Email a link like `https://yourapp.com/reset-password?token=${token}`
-        // 4. On the reset page, verify the token, and then allow the user to set a new password.
-        // 5. For this demo, we'll just log it. The `newPassword` would be sent in a separate email or after link click.
-        console.log(`Password reset link for ${email}: /reset-password?token=${token}`);
-        console.log(`User's temporary password would be: ${newPassword}`);
-
-
-        return { success: true, message: "If an account with that email exists, we've sent a password reset link." };
-
-    } catch (e) {
-        console.error("Could not generate password reset token.", e);
-        return { error: 'There was a problem resetting your password. Please try again later.' };
-    }
+    
+    // This action is now handled on the client-side with Firebase
+    // We keep this structure for consistency, but the core logic is in the form.
+    
+    return { success: true, message: "If an account with that email exists, we've sent a password reset link." };
 }
