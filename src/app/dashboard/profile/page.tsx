@@ -294,7 +294,10 @@ export default function ProfilePage() {
                     </div>
                     <DialogFooter>
                         <DialogClose asChild>
-                            <Button type="button">Done</Button>
+                            <Button type="button" variant="outline">Done</Button>
+                        </DialogClose>
+                        <DialogClose asChild>
+                            <Button type="button">Save</Button>
                         </DialogClose>
                     </DialogFooter>
                 </DialogContent>
