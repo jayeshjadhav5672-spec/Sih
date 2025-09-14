@@ -12,6 +12,7 @@ import {
   Settings,
   LogOut,
   Edit2,
+  Upload,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -20,6 +21,13 @@ import {
 } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { logoutUser } from '@/app/actions';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 
 
 export default function ProfilePage() {
@@ -55,33 +63,41 @@ export default function ProfilePage() {
       </header>
 
       <main className="p-4 md:p-6 flex flex-col items-center">
-        <div className="relative mb-4">
-            <Avatar className="w-32 h-32 border-4 border-card">
-                <AvatarImage src={profileImage} alt="Ethan Carter" />
-                <AvatarFallback>EC</AvatarFallback>
-            </Avatar>
-            <input 
-                type="file" 
-                ref={fileInputRef} 
-                onChange={handleImageChange}
-                className="hidden" 
-                accept="image/*"
-            />
-            <Button
-                variant="default"
-                size="icon"
-                className="absolute bottom-1 right-1 rounded-full h-8 w-8 bg-primary text-primary-foreground"
-                onClick={handleEditClick}
-            >
-                <Edit2 className="w-4 h-4" />
-            </Button>
-        </div>
+        <Dialog>
+          <DialogTrigger asChild>
+            <div className="relative mb-4 cursor-pointer">
+                <Avatar className="w-32 h-32 border-4 border-card">
+                    <AvatarImage src={profileImage} alt="Ethan Carter" />
+                    <AvatarFallback>EC</AvatarFallback>
+                </Avatar>
+                <div className="absolute inset-0 bg-black/30 rounded-full opacity-0 hover:opacity-100 flex items-center justify-center transition-opacity">
+                  <p className="text-white text-sm font-semibold">View Image</p>
+                </div>
+            </div>
+          </DialogTrigger>
+          <DialogContent className="max-w-md w-auto p-0">
+            <Image src={profileImage} alt="Profile Image" width={500} height={500} className="rounded-lg" />
+          </DialogContent>
+        </Dialog>
+        
+        <input 
+            type="file" 
+            ref={fileInputRef} 
+            onChange={handleImageChange}
+            className="hidden" 
+            accept="image/*"
+        />
 
-        <div className="text-center mb-8">
+        <div className="text-center mb-2">
           <h2 className="text-2xl font-bold">Ethan Carter</h2>
           <p className="text-muted-foreground">Student</p>
           <p className="text-muted-foreground text-sm">ID: 123456</p>
         </div>
+
+        <Button onClick={handleEditClick} variant="outline" className="mb-8">
+            <Upload className="mr-2 h-4 w-4" />
+            Upload Image
+        </Button>
 
         <div className="w-full max-w-md space-y-3">
           <Card>
