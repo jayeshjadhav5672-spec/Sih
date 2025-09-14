@@ -76,9 +76,9 @@ export function LoginForm() {
                 <Label>Login as:</Label>
                 <Tabs value={role} onValueChange={setRole} className="w-full">
                     <TabsList className="grid w-full grid-cols-3 bg-muted p-1 h-auto">
-                        <TabsTrigger value="teacher" className={cn("text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm", role === 'teacher' && 'bg-card text-foreground shadow-sm')}>Teacher</TabsTrigger>
-                        <TabsTrigger value="student" className={cn("text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm", role === 'student' && 'bg-card text-foreground shadow-sm')}>Student</TabsTrigger>
-                        <TabsTrigger value="admin" className={cn("text-muted-foreground data-[state=active]:bg-card data-[state=active]:text-foreground data-[state=active]:shadow-sm", role === 'admin' && 'bg-card text-foreground shadow-sm')}>Admin</TabsTrigger>
+                        <TabsTrigger value="teacher" className={cn("text-muted-foreground data-[state=active]:bg-selection data-[state=active]:text-selection-foreground data-[state=active]:shadow-sm", role === 'teacher' && 'bg-selection text-selection-foreground shadow-sm')}>Teacher</TabsTrigger>
+                        <TabsTrigger value="student" className={cn("text-muted-foreground data-[state=active]:bg-selection data-[state=active]:text-selection-foreground data-[state=active]:shadow-sm", role === 'student' && 'bg-selection text-selection-foreground shadow-sm')}>Student</TabsTrigger>
+                        <TabsTrigger value="admin" className={cn("text-muted-foreground data-[state=active]:bg-selection data-[state=active]:text-selection-foreground data-[state=active]:shadow-sm", role === 'admin' && 'bg-selection text-selection-foreground shadow-sm')}>Admin</TabsTrigger>
                     </TabsList>
                 </Tabs>
                 <input type="hidden" name="role" value={role} />
