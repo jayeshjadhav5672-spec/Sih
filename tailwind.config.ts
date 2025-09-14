@@ -1,3 +1,4 @@
+
 import type {Config} from 'tailwindcss';
 
 export default {
@@ -92,10 +93,30 @@ export default {
             height: '0',
           },
         },
+        'enter': {
+          '0%': { transform: 'scale(0.9)', opacity: '0' },
+          '100%': { transform: 'scale(1)', opacity: '1' },
+        },
+        'exit': {
+            '0%': { transform: 'scale(1)', opacity: '1' },
+            '100%': { transform: 'scale(0.9)', opacity: '0' },
+        },
+        'slide-in': {
+            '0%': { transform: 'translateY(-100%)', opacity: '0' },
+            '100%': { transform: 'translateY(0)', opacity: '1' },
+        },
+        'slide-out': {
+            '0%': { transform: 'translateY(0)', opacity: '1' },
+            '100%': { transform: 'translateY(-100%)', opacity: '0' },
+        },
       },
       animation: {
         'accordion-down': 'accordion-down 0.2s ease-out',
         'accordion-up': 'accordion-up 0.2s ease-out',
+        'enter': 'enter 0.2s ease-out',
+        'exit': 'exit 0.2s ease-in',
+        'slide-in': 'slide-in 0.2s ease-out',
+        'slide-out': 'slide-out 0.2s ease-in',
       },
     },
   },
