@@ -1,14 +1,15 @@
+
 export const collegeData: string[] = [
-  "St. Xavier's College, Mumbai",
-  "Kishinchand Chellaram College (KC College)",
+  "Elphinstone College",
   "Jai Hind College",
-  "Ramnarain Ruia Autonomous College",
-  "Sophia College for Women",
+  "Kishinchand Chellaram College (KC College)",
   "Mithibai College of Arts",
   "Narsee Monjee College of Commerce and Economics",
-  "Veermata Jijabai Technological Institute (VJTI)",
+  "Ramnarain Ruia Autonomous College",
   "Sardar Patel College of Engineering",
-  "Wilson College",
-  "Elphinstone College",
+  "Sophia College for Women",
+  "St. Xavier's College, Mumbai",
   "The Kelkar Education Trust's V.G. Vaze College of Arts, Science and Commerce",
+  "Veermata Jijabai Technological Institute (VJTI)",
+  "Wilson College",
 ];
