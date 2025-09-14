@@ -2,15 +2,11 @@
 
 import { Bar, BarChart, ResponsiveContainer, XAxis, YAxis, Cell } from "recharts"
 
-const data = [
-  { name: "Mon", total: 90 },
-  { name: "Tue", total: 0 },
-  { name: "Wed", total: 30 },
-  { name: "Thu", total: 0 },
-  { name: "Fri", total: 85 },
-]
+type AttendanceChartProps = {
+  data: { name: string; total: number }[];
+};
 
-export function AttendanceChart() {
+export function AttendanceChart({ data }: AttendanceChartProps) {
   return (
     <ResponsiveContainer width="100%" height={150}>
       <BarChart data={data} barGap={8}>

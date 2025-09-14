@@ -6,6 +6,7 @@ import Link from "next/link";
 import {
   Settings,
   ArrowUp,
+  ArrowDown,
   PlusCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -27,8 +28,19 @@ const initialDivisions = [
   { id: "div-c", name: "Div C", imageId: "div-c" },
 ];
 
+const initialChartData = [
+  { name: "Mon", total: 0 },
+  { name: "Tue", total: 0 },
+  { name: "Wed", total: 0 },
+  { name: "Thu", total: 0 },
+  { name: "Fri", total: 0 },
+];
+
 export default function DashboardPage() {
   const [wallpapers, setWallpapers] = useState<ImagePlaceholder[]>([]);
+  const [attendance, setAttendance] = useState(0);
+  const [attendanceChange, setAttendanceChange] = useState(0);
+  const [chartData, setChartData] = useState(initialChartData);
   const router = useRouter();
 
   useEffect(() => {
@@ -47,6 +59,18 @@ export default function DashboardPage() {
     } else {
       setWallpapers(getStoredWallpapers());
     }
+
+    // Simulate real-time data fetching
+    const interval = setInterval(() => {
+      setAttendance(Math.floor(Math.random() * 21) + 80); // Random % between 80-100
+      setAttendanceChange(Math.random() * 4 - 2); // Random change between -2 and +2
+      setChartData(initialChartData.map(day => ({
+        ...day,
+        total: Math.floor(Math.random() * 101)
+      })));
+    }, 3000); // Update every 3 seconds
+
+    return () => clearInterval(interval);
 
   }, [router]);
 
@@ -106,16 +130,16 @@ export default function DashboardPage() {
           <CardHeader>
             <CardDescription>Attendance</CardDescription>
             <div className="flex items-baseline gap-2">
-               <CardTitle className="text-4xl font-bold">92%</CardTitle>
-               <div className="flex items-center text-sm text-green-500 font-medium">
-                  <ArrowUp className="h-4 w-4" />
-                  <span>2%</span>
+               <CardTitle className="text-4xl font-bold">{attendance}%</CardTitle>
+               <div className={`flex items-center text-sm font-medium ${attendanceChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  {attendanceChange >= 0 ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
+                  <span>{Math.abs(attendanceChange).toFixed(1)}%</span>
                   <span className="text-muted-foreground ml-2">Last 7 Days</span>
                </div>
             </div>
           </CardHeader>
           <CardContent>
-             <AttendanceChart />
+             <AttendanceChart data={chartData} />
           </CardContent>
         </Card>
       </section>
