@@ -5,6 +5,7 @@ import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import { AlertTriangle, CheckCircle2, Loader2, User, Lock } from 'lucide-react';
 import { useState } from 'react';
+import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -86,6 +87,12 @@ export function LoginForm() {
             </div>
             <div className="pt-4">
                 <LoginButton />
+            </div>
+             <div className="mt-4 text-center text-sm">
+              Don't have an account?{' '}
+              <Link href="/signup" className="underline">
+                Sign up
+              </Link>
             </div>
           </CardContent>
         </form>
