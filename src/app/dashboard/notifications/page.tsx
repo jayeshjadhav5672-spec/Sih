@@ -31,6 +31,7 @@ import { useToast } from '@/hooks/use-toast';
 export default function NotificationsPage() {
     const [substitutions, setSubstitutions] = useState<SubstitutionRequest[]>(initialSubstitutions);
     const [newRequest, setNewRequest] = useState({ subject: '', class: '', time: '', date: '', notes: '' });
+    const [isDialogOpen, setIsDialogOpen] = useState(false);
     const { toast } = useToast();
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
@@ -45,7 +46,7 @@ export default function NotificationsPage() {
                 status: 'Pending',
                 ...newRequest
             };
-            // In a real app, you would send this request to a backend/service
+            
             console.log('Sending push notification for:', newSub);
 
             toast({
@@ -53,11 +54,17 @@ export default function NotificationsPage() {
               description: "Your substitution request has been sent to available teachers.",
             });
             
-            // Clear the form
             setNewRequest({ subject: '', class: '', time: '', date: '', notes: '' });
             
-            // Add the new request to the list of sent requests
             setSubstitutions(prevSubs => [newSub, ...prevSubs]);
+
+            setIsDialogOpen(false);
+        } else {
+           toast({
+              title: "Incomplete Request",
+              description: "Please fill out all the required fields.",
+              variant: "destructive"
+            });
         }
     };
 
@@ -71,9 +78,9 @@ export default function NotificationsPage() {
           </Button>
         </Link>
         <h1 className="text-xl font-bold">Substitutions</h1>
-        <Dialog>
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="default" size="icon">
+            <Button variant="default" size="icon" onClick={() => setIsDialogOpen(true)}>
               <Plus className="w-6 h-6" />
             </Button>
           </DialogTrigger>
@@ -105,8 +112,9 @@ export default function NotificationsPage() {
             </div>
             <DialogFooter>
               <DialogClose asChild>
-                <Button type="button" onClick={handleSendRequest}>Send Request</Button>
+                <Button type="button" variant="outline">Cancel</Button>
               </DialogClose>
+              <Button type="button" onClick={handleSendRequest}>Send Request</Button>
             </DialogFooter>
           </DialogContent>
         </Dialog>
