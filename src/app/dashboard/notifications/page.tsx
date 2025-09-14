@@ -101,26 +101,28 @@ export default function NotificationsPage() {
         </Dialog>
       </header>
 
-      <main className="p-4 md:p-6 space-y-4">
+      <main className="p-4 md:p-6 space-y-4 pb-20">
         {substitutions.map((sub) => (
-          <Card key={sub.id}>
-            <CardHeader>
-              <CardTitle className="flex justify-between items-center">
-                <span>{sub.subject} - {sub.class}</span>
-                <span className={`text-sm font-medium px-2 py-1 rounded-full ${sub.status === 'Accepted' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                  {sub.status}
-                </span>
-              </CardTitle>
-              <CardDescription>
-                {sub.date} at {sub.time}
-              </CardDescription>
-            </CardHeader>
-            {sub.notes && (
-                <CardContent>
-                    <p className="text-sm text-muted-foreground">{sub.notes}</p>
-                </CardContent>
-            )}
-          </Card>
+          <Link href={`/dashboard/notifications/${sub.id}`} key={sub.id} passHref>
+             <Card>
+                <CardHeader>
+                  <CardTitle className="flex justify-between items-center">
+                    <span>{sub.subject} - {sub.class}</span>
+                    <span className={`text-sm font-medium px-2 py-1 rounded-full ${sub.status === 'Accepted' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                      {sub.status}
+                    </span>
+                  </CardTitle>
+                  <CardDescription>
+                    {new Date(sub.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} at {sub.time}
+                  </CardDescription>
+                </CardHeader>
+                {sub.notes && (
+                    <CardContent>
+                        <p className="text-sm text-muted-foreground truncate">{sub.notes}</p>
+                    </CardContent>
+                )}
+              </Card>
+          </Link>
         ))}
       </main>
     </div>
