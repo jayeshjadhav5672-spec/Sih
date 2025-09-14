@@ -3,7 +3,7 @@
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
-import { Loader2, Mail, ArrowLeft } from 'lucide-react';
+import { Loader2, Mail, ArrowLeft, CheckCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -39,14 +39,12 @@ export function ForgotPasswordForm() {
       </CardHeader>
       <form action={formAction}>
         <CardContent className="space-y-4">
-          {state?.success && (
+          {state?.success && state.message && (
             <Alert>
-              <Mail className="h-4 w-4" />
-              <AlertTitle>Password Reset</AlertTitle>
+              <CheckCircle className="h-4 w-4" />
+              <AlertTitle>Check your email</AlertTitle>
               <AlertDescription>
-                Your new temporary password is: <strong>{state.newPassword}</strong>
-                <br />
-                Please login with this password and change it immediately.
+                {state.message}
               </AlertDescription>
             </Alert>
           )}
@@ -57,13 +55,15 @@ export function ForgotPasswordForm() {
                 <AlertDescription>{state.error}</AlertDescription>
             </Alert>
           )}
-          <div className="space-y-2">
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-              <Input id="email" name="email" placeholder="name@example.com" type="email" required className="pl-10" />
+          {!state?.success && (
+            <div className="space-y-2">
+                <div className="relative">
+                <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input id="email" name="email" placeholder="name@example.com" type="email" required className="pl-10" />
+                </div>
             </div>
-          </div>
-          <SubmitButton />
+          )}
+          {!state?.success && <SubmitButton />}
           <Button variant="link" className="w-full" asChild>
              <Link href="/">
                 <ArrowLeft className="mr-2 h-4 w-4" />

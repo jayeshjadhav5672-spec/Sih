@@ -87,7 +87,7 @@ const resetPasswordSchema = z.object({
 type ResetPasswordState = {
   error?: string;
   success?: boolean;
-  newPassword?: string;
+  message?: string;
 } | null;
 
 
@@ -101,20 +101,22 @@ export async function resetPassword(prevState: ResetPasswordState, formData: For
     const { email } = validatedFields.data;
 
     try {
-        const { password: newPassword } = await generateTemporaryPassword();
+        const { password: newPassword, token } = await generateTemporaryPassword();
         
         // This is a placeholder. In a real app, you would:
         // 1. Find the user by email in your database.
-        // 2. If the user exists, hash the newPassword.
-        // 3. Save the hashed password to the user's record.
-        // 4. Send an email to the user with the new password or a reset link.
-        console.log(`Password for ${email} reset to: ${newPassword}. In a real app, this would be emailed and the original would be updated in the database.`);
+        // 2. If the user exists, save the hashed reset `token` and its expiry.
+        // 3. Email a link like `https://yourapp.com/reset-password?token=${token}`
+        // 4. On the reset page, verify the token, and then allow the user to set a new password.
+        // 5. For this demo, we'll just log it. The `newPassword` would be sent in a separate email or after link click.
+        console.log(`Password reset link for ${email}: /reset-password?token=${token}`);
+        console.log(`User's temporary password would be: ${newPassword}`);
 
 
-        return { success: true, newPassword };
+        return { success: true, message: "If an account with that email exists, we've sent a password reset link." };
 
     } catch (e) {
-        console.error("Could not generate temporary password.", e);
+        console.error("Could not generate password reset token.", e);
         return { error: 'There was a problem resetting your password. Please try again later.' };
     }
 }
