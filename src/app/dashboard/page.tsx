@@ -32,7 +32,7 @@ export default function DashboardPage() {
   return (
     <div className="p-4 md:p-6 space-y-6">
       <header className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold">Dashboard</h1>
+        <h1 className="text-2xl font-bold">My Timetable</h1>
         <Button variant="ghost" size="icon">
           <Settings className="w-6 h-6" />
         </Button>

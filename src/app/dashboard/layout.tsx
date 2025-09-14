@@ -1,10 +1,7 @@
 import Link from "next/link";
 import {
   CalendarDays,
-  Grid3x3,
-  LineChart,
-  Settings,
-  Users,
+  Bell,
   User,
 } from "lucide-react";
 
@@ -20,35 +17,21 @@ export default function DashboardLayout({
         <nav className="flex justify-around items-center h-16">
           <Link
             href="/dashboard"
-            className="flex flex-col items-center text-primary"
-          >
-            <Grid3x3 className="h-6 w-6" />
-            <span className="text-xs font-medium">Dashboard</span>
-          </Link>
-          <Link
-            href="#"
             className="flex flex-col items-center text-muted-foreground hover:text-primary"
           >
             <CalendarDays className="h-6 w-6" />
-            <span className="text-xs">Timetables</span>
+            <span className="text-xs font-medium">My Timetable</span>
           </Link>
           <Link
             href="#"
             className="flex flex-col items-center text-muted-foreground hover:text-primary"
           >
-            <Users className="h-6 w-6" />
-            <span className="text-xs">Faculty</span>
+            <Bell className="h-6 w-6" />
+            <span className="text-xs">Notifications</span>
           </Link>
           <Link
-            href="#"
-            className="flex flex-col items-center text-muted-foreground hover:text-primary"
-          >
-            <LineChart className="h-6 w-6" />
-            <span className="text-xs">Analytics</span>
-          </Link>
-          <Link
-            href="#"
-            className="flex flex-col items-center text-muted-foreground hover:text-primary"
+            href="/dashboard/profile"
+            className="flex flex-col items-center text-primary"
           >
             <User className="h-6 w-6" />
             <span className="text-xs">Profile</span>

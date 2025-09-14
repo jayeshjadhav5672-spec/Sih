@@ -23,6 +23,10 @@ export async function loginUser(prevState: LoginState, formData: FormData): Prom
   redirect('/dashboard');
 }
 
+export async function logoutUser() {
+  redirect('/');
+}
+
 const signupSchema = z.object({
     fullName: z.string().min(1, 'Full name is required'),
     email: z.string().email('Invalid email address'),
