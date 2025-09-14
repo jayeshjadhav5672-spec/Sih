@@ -1,3 +1,22 @@
 {
-  "placeholderImages": []
+  "placeholderImages": [
+    {
+      "id": "div-a",
+      "description": "Classroom with a green chalkboard",
+      "imageUrl": "https://picsum.photos/seed/div-a/200/120",
+      "imageHint": "classroom chalkboard"
+    },
+    {
+      "id": "div-b",
+      "description": "Bright classroom with a whiteboard",
+      "imageUrl": "https://picsum.photos/seed/div-b/200/120",
+      "imageHint": "classroom whiteboard"
+    },
+    {
+      "id": "div-c",
+      "description": "Modern classroom with a large window",
+      "imageUrl": "https://picsum.photos/seed/div-c/200/120",
+      "imageHint": "classroom window"
+    }
+  ]
 }

@@ -20,18 +20,7 @@ export async function loginUser(prevState: LoginState, formData: FormData): Prom
     return { error: 'Invalid email or password.' };
   }
 
-  const { email } = validatedFields.data;
-
-  // Mock authentication logic: redirect based on email content
-  if (email.includes('admin')) {
-    redirect('/admin/dashboard');
-  } else if (email.includes('teacher')) {
-    redirect('/teacher/dashboard');
-  } else if (email.includes('student')) {
-    redirect('/student/dashboard');
-  } else {
-    return { error: 'Invalid credentials. Hint: use an email with "admin", "teacher", or "student".' };
-  }
+  redirect('/dashboard');
 }
 
 const signupSchema = z.object({
