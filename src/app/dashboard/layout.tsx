@@ -28,8 +28,8 @@ export default function DashboardLayout({
             <span className="text-xs font-medium">My Timetable</span>
           </Link>
           <Link
-            href="#"
-            className="flex flex-col items-center text-muted-foreground hover:text-primary"
+            href="/dashboard/notifications"
+            className={`flex flex-col items-center hover:text-primary ${pathname === '/dashboard/notifications' ? 'text-primary' : 'text-muted-foreground'}`}
           >
             <Bell className="h-6 w-6" />
             <span className="text-xs">Notifications</span>
