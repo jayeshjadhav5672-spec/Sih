@@ -66,7 +66,5 @@ export async function signupUser(prevState: SignupState, formData: FormData): Pr
     };
   }
 
-  // In a real app, you would create the user in the database here.
-  // We will redirect to the login page with a success message.
   redirect('/?message=Signup successful! Please log in.');
 }

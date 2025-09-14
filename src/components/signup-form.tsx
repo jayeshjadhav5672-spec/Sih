@@ -6,6 +6,7 @@ import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
 import { useFormStatus } from 'react-dom';
 import { Loader2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -32,7 +33,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { signupUser } from '@/app/actions';
+import { validatePasswordStrength } from '@/ai/flows/password-strength-validation';
+import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
   fullName: z.string().min(1, 'Full name is required'),
@@ -54,7 +56,8 @@ function SubmitButton() {
 }
 
 export function SignupForm() {
-  const [state, formAction] = useActionState(signupUser, null);
+  const router = useRouter();
+  const { toast } = useToast();
   
   const form = useForm<z.infer<typeof formSchema>>({
     resolver: zodResolver(formSchema),
@@ -65,25 +68,50 @@ export function SignupForm() {
     },
   });
 
-  useEffect(() => {
-    if (state?.errors) {
-      const errors = state.errors;
-      if (errors.fullName) {
-        form.setError('fullName', { type: 'server', message: errors.fullName[0] });
-      }
-      if (errors.email) {
-        form.setError('email', { type: 'server', message: errors.email[0] });
-      }
-      if (errors.password) {
-        form.setError('password', { type: 'server', message: errors.password[0] });
-      }
-       if (errors.role) {
-        form.setError('role', { type: 'server', message: errors.role[0] });
-      }
-    } else if (state?.error) {
-      form.setError('root.serverError', { type: 'server', message: state.error });
+  const onSubmit = async (values: z.infer<typeof formSchema>) => {
+    const passwordStrength = await validatePasswordStrength({ password: values.password });
+
+    if (!passwordStrength.isStrong) {
+      const reason = passwordStrength.reason || 'This password is too common. Please choose a stronger one.';
+      form.setError('password', { type: 'server', message: reason });
+      return;
     }
-  }, [state, form]);
+
+    const users = JSON.parse(localStorage.getItem('users') || '[]');
+    const existingUser = users.find((u: any) => u.email === values.email);
+
+    if (existingUser) {
+      form.setError('email', { type: 'server', message: 'An account with this email already exists.' });
+      return;
+    }
+
+    const newUser = {
+      id: `user-${Date.now()}`,
+      ...values,
+      profileImage: `https://i.pravatar.cc/150?u=${values.email}`,
+      phone: '',
+    };
+
+    users.push(newUser);
+    localStorage.setItem('users', JSON.stringify(users));
+    
+    // Also create profile data store
+    const profileData = JSON.parse(localStorage.getItem('profileData') || '{}');
+    profileData[newUser.id] = {
+      name: newUser.fullName,
+      email: newUser.email,
+      phone: newUser.phone,
+      profileImage: newUser.profileImage,
+      role: newUser.role,
+      id: newUser.id,
+      wallpapers: JSON.parse(localStorage.getItem('divisionalWallpapers') || '[]')
+    };
+    localStorage.setItem('profileData', JSON.stringify(profileData));
+
+
+    toast({ title: 'Success!', description: 'Signup successful! Please log in.' });
+    router.push('/?message=Signup successful! Please log in.');
+  };
 
   return (
     <Card className="w-full max-w-md shadow-xl border-t-4 border-primary">
@@ -92,7 +120,7 @@ export function SignupForm() {
         <CardDescription className="pt-2">Join TimeWise today!</CardDescription>
       </CardHeader>
       <Form {...form}>
-        <form action={formAction} className="space-y-6">
+        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
           <CardContent className="space-y-4">
             <FormField
               control={form.control}

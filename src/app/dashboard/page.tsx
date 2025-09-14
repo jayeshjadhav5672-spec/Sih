@@ -19,6 +19,7 @@ import {
 import { getStoredWallpapers, type ImagePlaceholder } from "@/lib/placeholder-images";
 import { AttendanceChart } from "@/components/attendance-chart";
 import { useEffect, useState } from "react";
+import { useRouter } from "next/navigation";
 
 const initialDivisions = [
   { id: "div-a", name: "Div A", imageId: "div-a-doodles-chalkboard" },
@@ -28,30 +29,36 @@ const initialDivisions = [
 
 export default function DashboardPage() {
   const [wallpapers, setWallpapers] = useState<ImagePlaceholder[]>([]);
+  const router = useRouter();
 
   useEffect(() => {
-    // On component mount, we load the latest wallpapers, which might have been updated from the profile page.
-    setWallpapers(getStoredWallpapers());
+    const userStr = sessionStorage.getItem('currentUser');
+    if (!userStr) {
+      router.push('/');
+      return;
+    }
 
-    const handleStorageChange = () => {
-        setWallpapers(getStoredWallpapers());
-    };
-    
-    window.addEventListener('storage', handleStorageChange);
+    const allProfileData = JSON.parse(localStorage.getItem('profileData') || '{}');
+    const user = JSON.parse(userStr);
+    const userProfile = allProfileData[user.id];
 
-    return () => {
-        window.removeEventListener('storage', handleStorageChange);
-    };
+    if (userProfile && userProfile.wallpapers) {
+      setWallpapers(userProfile.wallpapers);
+    } else {
+      setWallpapers(getStoredWallpapers());
+    }
 
-  }, []);
+  }, [router]);
 
   return (
     <div className="p-4 md:p-6 space-y-6">
       <header className="flex items-center justify-between">
         <h1 className="text-2xl font-bold">My Timetable</h1>
-        <Button variant="ghost" size="icon">
-          <Settings className="w-6 h-6" />
-        </Button>
+        <Link href="/dashboard/profile" passHref>
+          <Button variant="ghost" size="icon">
+            <Settings className="w-6 h-6" />
+          </Button>
+        </Link>
       </header>
       
       <section>

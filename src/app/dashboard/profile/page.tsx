@@ -4,6 +4,7 @@ import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useTheme } from "next-themes";
+import { useRouter } from 'next/navigation';
 import {
   ArrowLeft,
   ChevronRight,
@@ -23,7 +24,6 @@ import {
   CardContent,
 } from '@/components/ui/card';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
-import { logoutUser } from '@/app/actions';
 import {
   Dialog,
   DialogContent,
@@ -42,56 +42,92 @@ import { getStoredWallpapers, type ImagePlaceholder } from '@/lib/placeholder-im
 
 export default function ProfilePage() {
     const { setTheme, theme } = useTheme();
-    const [name, setName] = useState('Ethan Carter');
-    const [profileImage, setProfileImage] = useState('https://i.pravatar.cc/150?u=ethan-carter');
+    const router = useRouter();
+
+    const [currentUser, setCurrentUser] = useState<any>(null);
+    const [name, setName] = useState('');
+    const [email, setEmail] = useState('');
+    const [phone, setPhone] = useState('');
+    const [role, setRole] = useState('');
+    const [userId, setUserId] = useState('');
+    const [profileImage, setProfileImage] = useState('');
+    const [wallpapers, setWallpapers] = useState<ImagePlaceholder[]>([]);
+    
     const fileInputRef = useRef<HTMLInputElement>(null);
     const divAWallpaperInputRef = useRef<HTMLInputElement>(null);
     const divBWallpaperInputRef = useRef<HTMLInputElement>(null);
     const divCWallpaperInputRef = useRef<HTMLInputElement>(null);
-    const [email, setEmail] = useState('ethan.carter@example.com');
-    const [phone, setPhone] = useState('+1 (555) 123-4567');
-    
-    // This state will now hold the image data and be the source of truth
-    const [wallpapers, setWallpapers] = useState<ImagePlaceholder[]>([]);
 
     useEffect(() => {
-        // On component mount, we load the latest wallpapers.
-        const storedWallpapers = getStoredWallpapers();
-        setWallpapers(storedWallpapers);
+        const userStr = sessionStorage.getItem('currentUser');
+        if (userStr) {
+            const user = JSON.parse(userStr);
+            setCurrentUser(user);
+            
+            const allProfileData = JSON.parse(localStorage.getItem('profileData') || '{}');
+            const userProfile = allProfileData[user.id];
 
-        if (!localStorage.getItem('divisionalWallpapers')) {
-            localStorage.setItem('divisionalWallpapers', JSON.stringify(storedWallpapers));
+            if (userProfile) {
+                setName(userProfile.name);
+                setEmail(userProfile.email);
+                setPhone(userProfile.phone);
+                setRole(userProfile.role);
+                setUserId(userProfile.id);
+                setProfileImage(userProfile.profileImage);
+                setWallpapers(userProfile.wallpapers || getStoredWallpapers());
+            } else {
+                // Fallback for user just created
+                setName(user.fullName);
+                setEmail(user.email);
+                setRole(user.role);
+                setUserId(user.id);
+                setProfileImage(`https://i.pravatar.cc/150?u=${user.email}`);
+                setWallpapers(getStoredWallpapers());
+            }
+
+        } else {
+           router.push('/');
         }
+    }, [router]);
 
-        const handleStorageChange = () => {
-            setWallpapers(getStoredWallpapers());
-        };
+    const saveProfileData = (updatedData: any) => {
+        if (!currentUser) return;
+
+        const allProfileData = JSON.parse(localStorage.getItem('profileData') || '{}');
+        const userProfile = allProfileData[currentUser.id] || {};
         
-        window.addEventListener('storage', handleStorageChange);
+        allProfileData[currentUser.id] = { ...userProfile, ...updatedData };
+        localStorage.setItem('profileData', JSON.stringify(allProfileData));
+    };
 
-        return () => {
-            window.removeEventListener('storage', handleStorageChange);
-        };
-    }, []);
+    const handleNameSave = () => {
+        saveProfileData({ name });
+    };
 
-    const saveWallpapers = (newWallpapers: ImagePlaceholder[]) => {
-        setWallpapers(newWallpapers);
-        try {
-            // Persist changes to localStorage so they are not lost on refresh
-            localStorage.setItem('divisionalWallpapers', JSON.stringify(newWallpapers));
-            // Dispatch a storage event to notify other open tabs/windows
-            window.dispatchEvent(new Event('storage'));
-        } catch (error) {
-            console.error("Failed to save wallpapers to localStorage", error);
+    const handleEmailSave = () => {
+        saveProfileData({ email });
+
+        // also update the main user object
+        const users = JSON.parse(localStorage.getItem('users') || '[]');
+        const userIndex = users.findIndex((u:any) => u.id === currentUser.id);
+        if (userIndex !== -1) {
+            users[userIndex].email = email;
+            localStorage.setItem('users', JSON.stringify(users));
         }
-    }
+    };
+    
+    const handlePhoneSave = () => {
+        saveProfileData({ phone });
+    };
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const reader = new FileReader();
             reader.onload = (event) => {
                 if(event.target?.result) {
-                    setProfileImage(event.target.result as string);
+                    const newImage = event.target.result as string;
+                    setProfileImage(newImage);
+                    saveProfileData({ profileImage: newImage });
                 }
             };
             reader.readAsDataURL(e.target.files[0]);
@@ -99,7 +135,9 @@ export default function ProfilePage() {
     };
 
     const handleRemoveImage = () => {
-        setProfileImage('');
+        const defaultImage = `https://i.pravatar.cc/150?u=${email}`;
+        setProfileImage(defaultImage);
+        saveProfileData({ profileImage: defaultImage });
     }
     
     const handleWallpaperChange = (id: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -111,7 +149,8 @@ export default function ProfilePage() {
                    const updatedWallpapers = wallpapers.map(wp => 
                        wp.id === id ? { ...wp, imageUrl: newImageUrl } : wp
                    );
-                   saveWallpapers(updatedWallpapers);
+                   setWallpapers(updatedWallpapers);
+                   saveProfileData({ wallpapers: updatedWallpapers });
                 }
             };
             reader.readAsDataURL(e.target.files[0]);
@@ -121,6 +160,15 @@ export default function ProfilePage() {
     const handleUploadClick = () => {
         fileInputRef.current?.click();
     };
+
+    const handleLogout = () => {
+        sessionStorage.removeItem('currentUser');
+        router.push('/');
+    };
+    
+    if (!currentUser) {
+        return <div className="flex items-center justify-center min-h-screen">Loading...</div>;
+    }
 
   return (
     <div className="bg-background min-h-screen">
@@ -205,13 +253,13 @@ export default function ProfilePage() {
                     </div>
                     <DialogFooter>
                         <DialogClose asChild>
-                            <Button type="button">Save</Button>
+                            <Button type="button" onClick={handleNameSave}>Save</Button>
                         </DialogClose>
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
-          <p className="text-muted-foreground">Teacher</p>
-          <p className="text-muted-foreground text-sm">ID: 123456</p>
+          <p className="text-muted-foreground capitalize">{role}</p>
+          <p className="text-muted-foreground text-sm">ID: {userId}</p>
         </div>
 
         <div className="w-full max-w-md space-y-3">
@@ -245,7 +293,7 @@ export default function ProfilePage() {
                     </div>
                     <DialogFooter>
                         <DialogClose asChild>
-                            <Button type="button">Save</Button>
+                            <Button type="button" onClick={handleEmailSave}>Save</Button>
                         </DialogClose>
                     </DialogFooter>
                 </DialogContent>
@@ -261,7 +309,7 @@ export default function ProfilePage() {
                                     <Phone className="w-5 h-5 mr-4 text-muted-foreground" />
                                     <div className="flex-1 text-left">
                                         <p className="font-semibold">Phone</p>
-                                        <p className="text-sm text-muted-foreground">{phone}</p>
+                                        <p className="text-sm text-muted-foreground">{phone || 'Not set'}</p>
                                     </div>
                                     <ChevronRight className="w-5 h-5 text-muted-foreground" />
                                 </div>
@@ -281,7 +329,7 @@ export default function ProfilePage() {
                     </div>
                     <DialogFooter>
                          <DialogClose asChild>
-                            <Button type="button">Save</Button>
+                            <Button type="button" onClick={handlePhoneSave}>Save</Button>
                         </DialogClose>
                     </DialogFooter>
                 </DialogContent>
@@ -408,10 +456,10 @@ export default function ProfilePage() {
                 </DialogContent>
             </Dialog>
           
-          <form action={logoutUser} className="w-full">
+          <div className="w-full">
             <Card className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/30">
                 <CardContent className="p-0">
-                    <button type="submit" className="w-full">
+                    <button type="button" onClick={handleLogout} className="w-full">
                         <div className="flex items-center p-4 text-red-600 dark:text-red-400">
                             <LogOut className="w-5 h-5 mr-4" />
                             <div className="flex-1 text-left">
@@ -421,7 +469,7 @@ export default function ProfilePage() {
                     </button>
                 </CardContent>
             </Card>
-          </form>
+          </div>
 
         </div>
       </main>
