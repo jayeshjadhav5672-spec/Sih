@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useSearchParams } from 'next/navigation';
@@ -42,11 +43,13 @@ export function LoginForm() {
   const [collegeName, setCollegeName] = useState('');
   const [suggestions, setSuggestions] = useState<string[]>([]);
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+  const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const router = useRouter();
 
   const handleCollegeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
     setCollegeName(value);
+    setHighlightedIndex(-1); // Reset highlight on change
     if (value.length > 1) {
       const filteredColleges = collegeData
         .filter((college) =>
@@ -65,6 +68,28 @@ export function LoginForm() {
     setCollegeName(suggestion);
     setSuggestions([]);
     setIsPopoverOpen(false);
+    setHighlightedIndex(-1);
+  };
+  
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (!isPopoverOpen || suggestions.length === 0) return;
+
+    if (e.key === 'ArrowDown') {
+      e.preventDefault();
+      setHighlightedIndex((prevIndex) =>
+        prevIndex >= suggestions.length - 1 ? 0 : prevIndex + 1
+      );
+    } else if (e.key === 'ArrowUp') {
+      e.preventDefault();
+      setHighlightedIndex((prevIndex) =>
+        prevIndex <= 0 ? suggestions.length - 1 : prevIndex - 1
+      );
+    } else if (e.key === 'Enter') {
+      if (highlightedIndex !== -1) {
+        e.preventDefault();
+        handleSuggestionClick(suggestions[highlightedIndex]);
+      }
+    }
   };
   
   const handleLogin = (formData: FormData) => {
@@ -120,6 +145,7 @@ export function LoginForm() {
                         className="pl-10" 
                         value={collegeName}
                         onChange={handleCollegeChange}
+                        onKeyDown={handleKeyDown}
                         autoComplete="off"
                       />
                     </div>
@@ -130,8 +156,9 @@ export function LoginForm() {
                         <Button
                           key={index}
                           variant="ghost"
-                          className="justify-start font-normal"
+                          className={cn("justify-start font-normal", highlightedIndex === index && "bg-accent text-accent-foreground")}
                           onClick={() => handleSuggestionClick(suggestion)}
+                          onMouseEnter={() => setHighlightedIndex(index)}
                         >
                           {suggestion}
                         </Button>
