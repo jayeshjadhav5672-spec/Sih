@@ -1,9 +1,10 @@
+
 'use client';
 
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
 import Link from 'next/link';
-import { Loader2, Mail, ArrowLeft, CheckCircle } from 'lucide-react';
+import { Loader2, Mail, ArrowLeft, CheckCircle, AlertTriangle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
   Card,
@@ -39,18 +40,18 @@ export function ForgotPasswordForm() {
       </CardHeader>
       <form action={formAction}>
         <CardContent className="space-y-4">
-          {state?.success && state.message && (
+          {state?.success && (
             <Alert>
               <CheckCircle className="h-4 w-4" />
               <AlertTitle>Check your email</AlertTitle>
               <AlertDescription>
-                {state.message}
+                A password reset link has been sent to your email address. Please check your inbox and spam folder.
               </AlertDescription>
             </Alert>
           )}
           {state?.error && (
              <Alert variant="destructive">
-                <Mail className="h-4 w-4" />
+                <AlertTriangle className="h-4 w-4" />
                 <AlertTitle>Error</AlertTitle>
                 <AlertDescription>{state.error}</AlertDescription>
             </Alert>
@@ -75,3 +76,4 @@ export function ForgotPasswordForm() {
     </Card>
   );
 }
+
