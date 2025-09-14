@@ -39,6 +39,7 @@ import { getStoredWallpapers, type ImagePlaceholder } from '@/lib/placeholder-im
 
 export default function ProfilePage() {
     const { setTheme, theme } = useTheme();
+    const [name, setName] = useState('Ethan Carter');
     const [profileImage, setProfileImage] = useState('https://i.pravatar.cc/150?u=ethan-carter');
     const fileInputRef = useRef<HTMLInputElement>(null);
     const divAWallpaperInputRef = useRef<HTMLInputElement>(null);
@@ -52,7 +53,22 @@ export default function ProfilePage() {
 
     useEffect(() => {
         // On component mount, we load the latest wallpapers.
-        setWallpapers(getStoredWallpapers());
+        const storedWallpapers = getStoredWallpapers();
+        setWallpapers(storedWallpapers);
+
+        if (!localStorage.getItem('divisionalWallpapers')) {
+            localStorage.setItem('divisionalWallpapers', JSON.stringify(storedWallpapers));
+        }
+
+        const handleStorageChange = () => {
+            setWallpapers(getStoredWallpapers());
+        };
+        
+        window.addEventListener('storage', handleStorageChange);
+
+        return () => {
+            window.removeEventListener('storage', handleStorageChange);
+        };
     }, []);
 
     const saveWallpapers = (newWallpapers: ImagePlaceholder[]) => {
@@ -116,8 +132,8 @@ export default function ProfilePage() {
           <DialogTrigger asChild>
             <div className="relative mb-4 cursor-pointer">
                 <Avatar className="w-32 h-32 border-4 border-card">
-                    <AvatarImage src={profileImage} alt="Ethan Carter" />
-                    <AvatarFallback>EC</AvatarFallback>
+                    <AvatarImage src={profileImage} alt={name} />
+                    <AvatarFallback>{name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                 </Avatar>
                 <div className="absolute inset-0 bg-black/30 rounded-full opacity-0 hover:opacity-100 flex items-center justify-center transition-opacity">
                   <p className="text-white text-sm font-semibold">View Image</p>
@@ -141,8 +157,28 @@ export default function ProfilePage() {
          <input type="file" ref={divCWallpaperInputRef} onChange={handleWallpaperChange('div-c')} className="hidden" accept="image/*" />
 
         <div className="text-center mb-2">
-          <h2 className="text-2xl font-bold">Ethan Carter</h2>
-          <p className="text-muted-foreground">Student</p>
+            <Dialog>
+                <DialogTrigger asChild>
+                    <h2 className="text-2xl font-bold cursor-pointer hover:underline">{name}</h2>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Edit Name</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="name" className="text-right">Name</Label>
+                            <Input id="name" value={name} onChange={(e) => setName(e.target.value)} className="col-span-3" />
+                        </div>
+                    </div>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button type="button">Save</Button>
+                        </DialogClose>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
+          <p className="text-muted-foreground">Teacher</p>
           <p className="text-muted-foreground text-sm">ID: 123456</p>
         </div>
 
@@ -365,3 +401,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    
