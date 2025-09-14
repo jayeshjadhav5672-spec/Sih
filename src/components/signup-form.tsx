@@ -1,3 +1,4 @@
+
 'use client';
 
 import { useEffect, useActionState } from 'react';
@@ -99,16 +100,22 @@ export function SignupForm() {
         profileImage: newUser.profileImage,
         role: newUser.role,
         id: newUser.id,
+        subjects: newUser.role === 'teacher' ? ['Mathematics', 'Physics'] : [],
         wallpapers: JSON.parse(localStorage.getItem('divisionalWallpapers') || '[]')
       };
       localStorage.setItem('profileData', JSON.stringify(profileData));
 
       toast({ title: 'Success!', description: 'Signup successful! Please log in.' });
       router.push('/?message=Signup successful! Please log in.');
-    } else if (state?.errors) {
-      if (state.errors.password) {
+    } else if (state?.error && state.errors?.password) {
         form.setError('password', { type: 'server', message: state.errors.password[0] });
-      }
+    } else if (state?.error && !state.errors) {
+        toast({
+            title: "Signup Almost Complete!",
+            description: "Your account was created, but we couldn't verify password strength. Please log in.",
+            variant: "default"
+        });
+        router.push('/?message=Signup successful! Please log in.');
     }
   }, [state, form, router, toast]);
 

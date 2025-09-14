@@ -2,9 +2,10 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, BookOpen, GraduationCap, Calendar, Clock } from 'lucide-react';
+import { ArrowLeft, BookOpen, GraduationCap, Calendar, Clock, Star } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { initialSubstitutions } from '@/lib/substitutions-data';
 import { useState, useEffect } from 'react';
 import type { SubstitutionRequest } from '@/lib/substitutions-data';
@@ -15,13 +16,30 @@ export default function SubstitutionDetailPage() {
   const { id } = params;
   
   const [substitution, setSubstitution] = useState<SubstitutionRequest | null>(null);
+  const [isSubjectMatch, setIsSubjectMatch] = useState(false);
+  const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
-    const sub = initialSubstitutions.find((s) => s.id === id);
-    if (sub) {
-      setSubstitution(sub);
+    const userStr = sessionStorage.getItem('currentUser');
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      setCurrentUser(user);
+
+      const sub = initialSubstitutions.find((s) => s.id === id);
+      if (sub) {
+        setSubstitution(sub);
+        
+        const allProfileData = JSON.parse(localStorage.getItem('profileData') || '{}');
+        const userProfile = allProfileData[user.id];
+
+        if (userProfile && userProfile.subjects?.includes(sub.subject)) {
+          setIsSubjectMatch(true);
+        }
+      }
+    } else {
+      router.push('/');
     }
-  }, [id]);
+  }, [id, router]);
 
   if (!substitution) {
     return (
@@ -58,6 +76,20 @@ export default function SubstitutionDetailPage() {
       </header>
 
       <main className="flex-1 p-6 space-y-8">
+        {currentUser?.role === 'teacher' && isSubjectMatch && (
+            <Card className="bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800/40">
+                <CardContent className="p-4 flex items-center gap-4">
+                    <div className="bg-green-100 p-3 rounded-full dark:bg-green-900">
+                        <Star className="w-6 h-6 text-green-600 dark:text-green-400" />
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-lg text-green-800 dark:text-green-300">It's a Subject Match!</h3>
+                        <p className="text-sm text-green-600 dark:text-green-400">This request is for a subject you teach.</p>
+                    </div>
+                </CardContent>
+            </Card>
+        )}
+
         <div>
           <h2 className="text-2xl font-bold mb-4">Class Details</h2>
           <div className="space-y-6">

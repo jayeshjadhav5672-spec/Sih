@@ -17,6 +17,7 @@ import {
   Edit,
   Trash2,
   Image as ImageIcon,
+  Book,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -38,6 +39,7 @@ import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
 import { getStoredWallpapers, type ImagePlaceholder } from '@/lib/placeholder-images';
+import { Badge } from '@/components/ui/badge';
 
 
 export default function ProfilePage() {
@@ -50,6 +52,7 @@ export default function ProfilePage() {
     const [phone, setPhone] = useState('');
     const [role, setRole] = useState('');
     const [userId, setUserId] = useState('');
+    const [subjects, setSubjects] = useState<string[]>([]);
     const [profileImage, setProfileImage] = useState('');
     const [wallpapers, setWallpapers] = useState<ImagePlaceholder[]>([]);
     
@@ -73,6 +76,7 @@ export default function ProfilePage() {
                 setPhone(userProfile.phone);
                 setRole(userProfile.role);
                 setUserId(userProfile.id);
+                setSubjects(userProfile.subjects || []);
                 setProfileImage(userProfile.profileImage);
                 setWallpapers(userProfile.wallpapers || getStoredWallpapers());
             } else {
@@ -81,6 +85,7 @@ export default function ProfilePage() {
                 setEmail(user.email);
                 setRole(user.role);
                 setUserId(user.id);
+                setSubjects(user.role === 'teacher' ? ['Mathematics', 'Physics'] : []);
                 setProfileImage(`https://i.pravatar.cc/150?u=${user.email}`);
                 setWallpapers(getStoredWallpapers());
             }
@@ -119,6 +124,11 @@ export default function ProfilePage() {
     const handlePhoneSave = () => {
         saveProfileData({ phone });
     };
+    
+    const handleSubjectsSave = (newSubjects: string[]) => {
+      setSubjects(newSubjects);
+      saveProfileData({ subjects: newSubjects });
+    }
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -334,6 +344,27 @@ export default function ProfilePage() {
                     </DialogFooter>
                 </DialogContent>
             </Dialog>
+
+            {/* Subjects for Teachers */}
+            {role === 'teacher' && (
+              <Card>
+                  <CardContent className="p-4">
+                      <div className="flex items-center">
+                          <Book className="w-5 h-5 mr-4 text-muted-foreground" />
+                          <div className="flex-1 text-left">
+                              <p className="font-semibold">My Subjects</p>
+                               <div className="flex flex-wrap gap-2 mt-2">
+                                {subjects.map((subject) => (
+                                  <Badge key={subject} variant="secondary">{subject}</Badge>
+                                ))}
+                              </div>
+                          </div>
+                          {/* Optional: Add an edit button here to open a dialog for editing subjects */}
+                      </div>
+                  </CardContent>
+              </Card>
+            )}
+
 
             {/* Change Password Dialog */}
             <Dialog>
