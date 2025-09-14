@@ -60,18 +60,6 @@ export default function DashboardPage() {
       setWallpapers(getStoredWallpapers());
     }
 
-    // Simulate real-time data fetching
-    const interval = setInterval(() => {
-      setAttendance(Math.floor(Math.random() * 21) + 80); // Random % between 80-100
-      setAttendanceChange(Math.random() * 4 - 2); // Random change between -2 and +2
-      setChartData(initialChartData.map(day => ({
-        ...day,
-        total: Math.floor(Math.random() * 101)
-      })));
-    }, 3000); // Update every 3 seconds
-
-    return () => clearInterval(interval);
-
   }, [router]);
 
   return (
