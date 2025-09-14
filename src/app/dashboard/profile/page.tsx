@@ -41,6 +41,9 @@ export default function ProfilePage() {
     const { setTheme, theme } = useTheme();
     const [profileImage, setProfileImage] = useState('https://i.pravatar.cc/150?u=ethan-carter');
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const divAWallpaperInputRef = useRef<HTMLInputElement>(null);
+    const divBWallpaperInputRef = useRef<HTMLInputElement>(null);
+    const divCWallpaperInputRef = useRef<HTMLInputElement>(null);
     const [email, setEmail] = useState('ethan.carter@example.com');
     const [phone, setPhone] = useState('+1 (555) 123-4567');
     
@@ -56,6 +59,18 @@ export default function ProfilePage() {
             reader.onload = (event) => {
                 if(event.target?.result) {
                     setProfileImage(event.target.result as string);
+                }
+            };
+            reader.readAsDataURL(e.target.files[0]);
+        }
+    };
+    
+    const handleWallpaperChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
+        if (e.target.files && e.target.files[0]) {
+            const reader = new FileReader();
+            reader.onload = (event) => {
+                if(event.target?.result) {
+                    setter(event.target.result as string);
                 }
             };
             reader.readAsDataURL(e.target.files[0]);
@@ -103,6 +118,9 @@ export default function ProfilePage() {
             className="hidden" 
             accept="image/*"
         />
+         <input type="file" ref={divAWallpaperInputRef} onChange={handleWallpaperChange(setDivAWallpaper)} className="hidden" accept="image/*" />
+        <input type="file" ref={divBWallpaperInputRef} onChange={handleWallpaperChange(setDivBWallpaper)} className="hidden" accept="image/*" />
+        <input type="file" ref={divCWallpaperInputRef} onChange={handleWallpaperChange(setDivCWallpaper)} className="hidden" accept="image/*" />
 
         <div className="text-center mb-2">
           <h2 className="text-2xl font-bold">Ethan Carter</h2>
@@ -211,7 +229,7 @@ export default function ProfilePage() {
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
                         <div className="grid grid-cols-4 items-center gap-4">
-                            <Label htmlFor="current-password" cla ssName="text-right">Current</Label>
+                            <Label htmlFor="current-password" className="text-right">Current</Label>
                             <Input id="current-password" type="password" className="col-span-3" />
                         </div>
                         <div className="grid grid-cols-4 items-center gap-4">
@@ -276,17 +294,23 @@ export default function ProfilePage() {
                         <div>
                             <h3 className="text-lg font-semibold mb-4">Divisional Wallpapers</h3>
                             <div className="space-y-4">
-                                <div className="grid w-full items-center gap-1.5">
-                                    <Label htmlFor="div-a-url">Div A Wallpaper URL</Label>
-                                    <Input id="div-a-url" value={divAWallpaper} onChange={(e) => setDivAWallpaper(e.target.value)} />
+                                <div className="flex items-center justify-between">
+                                    <Label>Div A Wallpaper</Label>
+                                    <Button variant="outline" onClick={() => divAWallpaperInputRef.current?.click()}>
+                                        <Upload className="mr-2 h-4 w-4" /> Upload
+                                    </Button>
                                 </div>
-                                 <div className="grid w-full items-center gap-1.5">
-                                    <Label htmlFor="div-b-url">Div B Wallpaper URL</Label>
-                                    <Input id="div-b-url" value={divBWallpaper} onChange={(e) => setDivBWallpaper(e.target.value)} />
+                                 <div className="flex items-center justify-between">
+                                    <Label>Div B Wallpaper</Label>
+                                     <Button variant="outline" onClick={() => divBWallpaperInputRef.current?.click()}>
+                                        <Upload className="mr-2 h-4 w-4" /> Upload
+                                    </Button>
                                 </div>
-                                 <div className="grid w-full items-center gap-1.5">
-                                    <Label htmlFor="div-c-url">Div C Wallpaper URL</Label>
-                                    <Input id="div-c-url" value={divCWallpaper} onChange={(e) => setDivCWallpaper(e.target.value)} />
+                                 <div className="flex items-center justify-between">
+                                    <Label>Div C Wallpaper</Label>
+                                     <Button variant="outline" onClick={() => divCWallpaperInputRef.current?.click()}>
+                                        <Upload className="mr-2 h-4 w-4" /> Upload
+                                    </Button>
                                 </div>
                             </div>
                         </div>
@@ -323,3 +347,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    
