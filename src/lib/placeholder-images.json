@@ -1,9 +1,10 @@
+
 {
   "placeholderImages": [
     {
-      "id": "div-a",
+      "id": "div-a-doodles-chalkboard",
       "description": "Chalkboard with educational doodles and books",
-      "imageUrl": "https://picsum.photos/seed/div-a-doodles/200/120",
+      "imageUrl": "https://picsum.photos/seed/doodles-chalkboard/200/120",
       "imageHint": "chalkboard doodles"
     },
     {
