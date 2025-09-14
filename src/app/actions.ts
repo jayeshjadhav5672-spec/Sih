@@ -56,15 +56,23 @@ export async function signupUser(prevState: SignupState, formData: FormData): Pr
 
   const { password } = validatedFields.data;
 
-  const passwordStrength = await validatePasswordStrength({ password });
+  try {
+    const passwordStrength = await validatePasswordStrength({ password });
 
-  if (!passwordStrength.isStrong) {
-    const reason = passwordStrength.reason || 'This password is too common. Please choose a stronger one.';
-    return {
-      error: reason,
-      errors: { password: [reason] }
-    };
+    if (!passwordStrength.isStrong) {
+      const reason = passwordStrength.reason || 'This password is too common. Please choose a stronger one.';
+      return {
+        error: reason,
+        errors: { password: [reason] }
+      };
+    }
+  } catch (e) {
+    console.error("Could not validate password strength, allowing signup anyway.", e);
+    // In case of an error with the AI service, we can choose to
+    // either block the signup or allow it. For better user experience,
+    // we will allow it here.
   }
+
 
   redirect('/?message=Signup successful! Please log in.');
 }
