@@ -1,7 +1,8 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useFormState, useFormStatus } from 'react-dom';
+import { useActionState } from 'react';
+import { useFormStatus } from 'react-dom';
 import { AlertTriangle, CheckCircle2, Loader2, User, Lock } from 'lucide-react';
 import { useState } from 'react';
 
@@ -31,7 +32,7 @@ function LoginButton() {
 }
 
 export function LoginForm() {
-  const [state, formAction] = useFormState(loginUser, null);
+  const [state, formAction] = useActionState(loginUser, null);
   const searchParams = useSearchParams();
   const signupMessage = searchParams.get('message');
   const [role, setRole] = useState('student');
