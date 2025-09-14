@@ -25,11 +25,13 @@ import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
 import { initialSubstitutions, SubstitutionRequest } from '@/lib/substitutions-data';
+import { useToast } from '@/hooks/use-toast';
 
 
 export default function NotificationsPage() {
     const [substitutions, setSubstitutions] = useState<SubstitutionRequest[]>(initialSubstitutions);
     const [newRequest, setNewRequest] = useState({ subject: '', class: '', time: '', date: '', notes: '' });
+    const { toast } = useToast();
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -43,10 +45,19 @@ export default function NotificationsPage() {
                 status: 'Pending',
                 ...newRequest
             };
-            setSubstitutions(prevSubs => [newSub, ...prevSubs]);
-            // Here you would typically send the push notification
+            // In a real app, you would send this request to a backend/service
             console.log('Sending push notification for:', newSub);
-            // Close dialog by resetting state or using DialogClose
+
+            toast({
+              title: "Request Sent",
+              description: "Your substitution request has been sent to available teachers.",
+            });
+            
+            // Clear the form
+            setNewRequest({ subject: '', class: '', time: '', date: '', notes: '' });
+            
+            // Do not add to the sender's own list
+            // setSubstitutions(prevSubs => [newSub, ...prevSubs]);
         }
     };
 
