@@ -74,7 +74,22 @@ export default function SubstitutionDetailPage() {
     router.push('/dashboard/notifications');
   };
   
+  const handleCancelRequest = () => {
+    const allSubs: SubstitutionRequest[] = JSON.parse(localStorage.getItem('substitutions') || '[]');
+    const updatedSubs = allSubs.filter(s => s.id !== id);
+    
+    localStorage.setItem('substitutions', JSON.stringify(updatedSubs));
+
+    toast({
+      title: "Request Cancelled",
+      description: "Your substitution request has been cancelled.",
+    });
+
+    router.push('/dashboard/notifications');
+  };
+  
   const isActionable = substitution.status === 'Pending' && currentUser?.id !== substitution.requesterId;
+  const isCancellable = substitution.status === 'Pending' && currentUser?.id === substitution.requesterId;
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -125,6 +140,11 @@ export default function SubstitutionDetailPage() {
           </div>
         </footer>
        )}
+       {isCancellable && (
+          <footer className="sticky bottom-0 bg-background p-4 border-t">
+            <Button variant="destructive" size="lg" className="w-full" onClick={handleCancelRequest}>Cancel Request</Button>
+          </footer>
+        )}
     </div>
   );
 }
