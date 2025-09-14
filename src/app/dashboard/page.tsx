@@ -34,7 +34,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 const initialDivisions = [
-  { id: "div-a", name: "Div A", imageId: "div-a-doodles-chalkboard" },
+  { id: "div-a", name: "Div A", imageId: "div-a-doodles-chalkboard-illustration" },
   { id: "div-b", name: "Div B", imageId: "div-b" },
   { id: "div-c", name: "Div C", imageId: "div-c" },
 ];
@@ -80,7 +80,7 @@ export default function DashboardPage() {
               <div key={division.id} className="flex-shrink-0 w-40">
                 <Card className="overflow-hidden relative group">
                   <CardContent className="p-0">
-                    {image && (
+                    {image && image.imageUrl && (
                       <Image
                         src={image.imageUrl}
                         alt={image.description}
