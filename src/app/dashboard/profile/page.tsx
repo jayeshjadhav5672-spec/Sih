@@ -26,12 +26,19 @@ import {
   DialogHeader,
   DialogTitle,
   DialogTrigger,
+  DialogFooter,
+  DialogClose,
 } from "@/components/ui/dialog";
+import { Input } from '@/components/ui/input';
+import { Label } from '@/components/ui/label';
+import { Switch } from '@/components/ui/switch';
 
 
 export default function ProfilePage() {
     const [profileImage, setProfileImage] = useState('https://i.pravatar.cc/150?u=ethan-carter');
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const [email, setEmail] = useState('ethan.carter@example.com');
+    const [phone, setPhone] = useState('+1 (555) 123-4567');
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -99,63 +106,159 @@ export default function ProfilePage() {
         </Button>
 
         <div className="w-full max-w-md space-y-3">
-          <Card>
-            <CardContent className="p-0">
-                <button className="w-full">
-                    <div className="flex items-center p-4">
-                        <Mail className="w-5 h-5 mr-4 text-muted-foreground" />
-                        <div className="flex-1 text-left">
-                            <p className="font-semibold">Email</p>
-                            <p className="text-sm text-muted-foreground">ethan.carter@example.com</p>
+            {/* Email Dialog */}
+            <Dialog>
+                <DialogTrigger asChild>
+                    <Card>
+                        <CardContent className="p-0">
+                            <button className="w-full">
+                                <div className="flex items-center p-4">
+                                    <Mail className="w-5 h-5 mr-4 text-muted-foreground" />
+                                    <div className="flex-1 text-left">
+                                        <p className="font-semibold">Email</p>
+                                        <p className="text-sm text-muted-foreground">{email}</p>
+                                    </div>
+                                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                                </div>
+                            </button>
+                        </CardContent>
+                    </Card>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Edit Email</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="email" className="text-right">Email</Label>
+                            <Input id="email" value={email} onChange={(e) => setEmail(e.target.value)} className="col-span-3" />
                         </div>
-                        <ChevronRight className="w-5 h-5 text-muted-foreground" />
                     </div>
-                </button>
-            </CardContent>
-          </Card>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button type="button">Save</Button>
+                        </DialogClose>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
-          <Card>
-            <CardContent className="p-0">
-                <button className="w-full">
-                    <div className="flex items-center p-4">
-                        <Phone className="w-5 h-5 mr-4 text-muted-foreground" />
-                        <div className="flex-1 text-left">
-                            <p className="font-semibold">Phone</p>
-                            <p className="text-sm text-muted-foreground">+1 (555) 123-4567</p>
+            {/* Phone Dialog */}
+            <Dialog>
+                <DialogTrigger asChild>
+                    <Card>
+                        <CardContent className="p-0">
+                            <button className="w-full">
+                                <div className="flex items-center p-4">
+                                    <Phone className="w-5 h-5 mr-4 text-muted-foreground" />
+                                    <div className="flex-1 text-left">
+                                        <p className="font-semibold">Phone</p>
+                                        <p className="text-sm text-muted-foreground">{phone}</p>
+                                    </div>
+                                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                                </div>
+                            </button>
+                        </CardContent>
+                    </Card>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Edit Phone Number</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="phone" className="text-right">Phone</Label>
+                            <Input id="phone" value={phone} onChange={(e) => setPhone(e.target.value)} className="col-span-3" />
                         </div>
-                        <ChevronRight className="w-5 h-5 text-muted-foreground" />
                     </div>
-                </button>
-            </CardContent>
-          </Card>
+                    <DialogFooter>
+                         <DialogClose asChild>
+                            <Button type="button">Save</Button>
+                        </DialogClose>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
-          <Card>
-            <CardContent className="p-0">
-                <button className="w-full">
-                    <div className="flex items-center p-4">
-                        <Lock className="w-5 h-5 mr-4 text-muted-foreground" />
-                        <div className="flex-1 text-left">
-                            <p className="font-semibold">Change Password</p>
+            {/* Change Password Dialog */}
+            <Dialog>
+                <DialogTrigger asChild>
+                    <Card>
+                        <CardContent className="p-0">
+                            <button className="w-full">
+                                <div className="flex items-center p-4">
+                                    <Lock className="w-5 h-5 mr-4 text-muted-foreground" />
+                                    <div className="flex-1 text-left">
+                                        <p className="font-semibold">Change Password</p>
+                                    </div>
+                                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                                </div>
+                            </button>
+                        </CardContent>
+                    </Card>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>Change Password</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="current-password" cla ssName="text-right">Current</Label>
+                            <Input id="current-password" type="password" className="col-span-3" />
                         </div>
-                        <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                        <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="new-password" className="text-right">New</Label>
+                            <Input id="new-password" type="password" className="col-span-3" />
+                        </div>
+                         <div className="grid grid-cols-4 items-center gap-4">
+                            <Label htmlFor="confirm-password" className="text-right">Confirm</Label>
+                            <Input id="confirm-password" type="password" className="col-span-3" />
+                        </div>
                     </div>
-                </button>
-            </CardContent>
-          </Card>
+                    <DialogFooter>
+                         <DialogClose asChild>
+                            <Button type="button">Save Changes</Button>
+                        </DialogClose>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
 
-          <Card>
-            <CardContent className="p-0">
-                <button className="w-full">
-                    <div className="flex items-center p-4">
-                        <Settings className="w-5 h-5 mr-4 text-muted-foreground" />
-                        <div className="flex-1 text-left">
-                            <p className="font-semibold">App Settings</p>
+            {/* App Settings Dialog */}
+            <Dialog>
+                <DialogTrigger asChild>
+                    <Card>
+                        <CardContent className="p-0">
+                            <button className="w-full">
+                                <div className="flex items-center p-4">
+                                    <Settings className="w-5 h-5 mr-4 text-muted-foreground" />
+                                    <div className="flex-1 text-left">
+                                        <p className="font-semibold">App Settings</p>
+                                    </div>
+                                    <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                                </div>
+                            </button>
+                        </CardContent>
+                    </Card>
+                </DialogTrigger>
+                <DialogContent>
+                    <DialogHeader>
+                        <DialogTitle>App Settings</DialogTitle>
+                    </DialogHeader>
+                    <div className="grid gap-4 py-4">
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="dark-mode">Dark Mode</Label>
+                            <Switch id="dark-mode" />
                         </div>
-                        <ChevronRight className="w-5 h-5 text-muted-foreground" />
+                        <div className="flex items-center justify-between">
+                            <Label htmlFor="notifications">Enable Notifications</Label>
+                            <Switch id="notifications" checked />
+                        </div>
                     </div>
-                </button>
-            </CardContent>
-          </Card>
+                    <DialogFooter>
+                        <DialogClose asChild>
+                            <Button type="button">Done</Button>
+                        </DialogClose>
+                    </DialogFooter>
+                </DialogContent>
+            </Dialog>
           
           <form action={logoutUser} className="w-full">
             <Card className="bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800/30">
