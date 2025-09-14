@@ -56,8 +56,8 @@ export default function NotificationsPage() {
             // Clear the form
             setNewRequest({ subject: '', class: '', time: '', date: '', notes: '' });
             
-            // Do not add to the sender's own list
-            // setSubstitutions(prevSubs => [newSub, ...prevSubs]);
+            // Add the new request to the list of sent requests
+            setSubstitutions(prevSubs => [newSub, ...prevSubs]);
         }
     };
 
@@ -113,28 +113,34 @@ export default function NotificationsPage() {
       </header>
 
       <main className="p-4 md:p-6 space-y-4 pb-20">
-        {substitutions.map((sub) => (
-          <Link href={`/dashboard/notifications/${sub.id}`} key={sub.id} passHref>
-             <Card>
-                <CardHeader>
-                  <CardTitle className="flex justify-between items-center">
-                    <span>{sub.subject} - {sub.class}</span>
-                    <span className={`text-sm font-medium px-2 py-1 rounded-full ${sub.status === 'Accepted' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
-                      {sub.status}
-                    </span>
-                  </CardTitle>
-                  <CardDescription>
-                    {new Date(sub.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} at {sub.time}
-                  </CardDescription>
-                </CardHeader>
-                {sub.notes && (
-                    <CardContent>
-                        <p className="text-sm text-muted-foreground truncate">{sub.notes}</p>
-                    </CardContent>
-                )}
-              </Card>
-          </Link>
-        ))}
+        {substitutions.length === 0 ? (
+          <div className="text-center text-muted-foreground mt-12">
+            <p>You haven't sent any substitution requests yet.</p>
+          </div>
+        ) : (
+          substitutions.map((sub) => (
+            <Link href={`/dashboard/notifications/${sub.id}`} key={sub.id} passHref>
+               <Card>
+                  <CardHeader>
+                    <CardTitle className="flex justify-between items-center">
+                      <span>{sub.subject} - {sub.class}</span>
+                      <span className={`text-sm font-medium px-2 py-1 rounded-full ${sub.status === 'Accepted' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                        {sub.status}
+                      </span>
+                    </CardTitle>
+                    <CardDescription>
+                      {new Date(sub.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} at {sub.time}
+                    </CardDescription>
+                  </CardHeader>
+                  {sub.notes && (
+                      <CardContent>
+                          <p className="text-sm text-muted-foreground truncate">{sub.notes}</p>
+                      </CardContent>
+                  )}
+                </Card>
+            </Link>
+          ))
+        )}
       </main>
     </div>
   );
