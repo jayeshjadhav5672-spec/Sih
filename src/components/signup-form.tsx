@@ -4,7 +4,6 @@ import { useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
-import Link from 'next/link';
 import { useFormState, useFormStatus } from 'react-dom';
 import { Loader2 } from 'lucide-react';
 
@@ -159,12 +158,6 @@ export function SignupForm() {
           </CardContent>
           <CardFooter className="flex flex-col gap-4">
             <SubmitButton />
-            <p className="text-center text-sm text-muted-foreground">
-              Already have an account?{' '}
-              <Link href="/" className="underline font-semibold text-primary/90 hover:text-primary">
-                Login
-              </Link>
-            </p>
           </CardFooter>
         </form>
       </Form>
