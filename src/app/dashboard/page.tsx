@@ -2,9 +2,11 @@
 'use client';
 
 import Image from "next/image";
+import Link from "next/link";
 import {
   Settings,
   ArrowUp,
+  PlusCircle,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -51,6 +53,15 @@ export default function DashboardPage() {
           <Settings className="w-6 h-6" />
         </Button>
       </header>
+      
+      <section>
+        <Link href="/dashboard/notifications" passHref>
+          <Button className="w-full" size="lg">
+            <PlusCircle className="mr-2 h-5 w-5" />
+            Request Substitution
+          </Button>
+        </Link>
+      </section>
 
       <section>
         <h2 className="text-xl font-semibold mb-3">Divisional Timetables</h2>
