@@ -2,10 +2,9 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, BookOpen, GraduationCap, Calendar, Clock, Star, UserCheck } from 'lucide-react';
+import { ArrowLeft, UserCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Badge } from '@/components/ui/badge';
 import { SubstitutionRequest } from '@/lib/substitutions-data';
 import { useState, useEffect } from 'react';
 import { useToast } from '@/hooks/use-toast';
@@ -36,7 +35,7 @@ export default function SubstitutionDetailPage() {
     }
   }, [id, router]);
 
-  if (!substitution) {
+  if (!substitution || !currentUser) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <p>Loading...</p>
