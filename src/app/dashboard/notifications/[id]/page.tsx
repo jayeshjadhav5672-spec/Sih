@@ -17,7 +17,6 @@ export default function SubstitutionDetailPage() {
   const { toast } = useToast();
   
   const [substitution, setSubstitution] = useState<SubstitutionRequest | null>(null);
-  const [isSubjectMatch, setIsSubjectMatch] = useState(false);
   const [currentUser, setCurrentUser] = useState<any>(null);
 
   useEffect(() => {
@@ -31,13 +30,6 @@ export default function SubstitutionDetailPage() {
 
       if (sub) {
         setSubstitution(sub);
-        
-        const allProfileData = JSON.parse(localStorage.getItem('profileData') || '{}');
-        const userProfile = allProfileData[user.id];
-
-        if (userProfile && userProfile.subjects?.includes(sub.subject)) {
-          setIsSubjectMatch(true);
-        }
       }
     } else {
       router.push('/');
@@ -75,20 +67,14 @@ export default function SubstitutionDetailPage() {
         
         toast({
             title: "Request Accepted!",
-            description: `You are now scheduled to substitute for ${allSubs[subIndex].subject}.`,
+            description: `You are now scheduled to substitute.`,
         });
     }
 
     router.push('/dashboard/notifications');
   };
   
-  const isActionable = substitution.status === 'Pending' && currentUser?.id !== substitution.requesterName;
-
-  const formattedDate = new Date(substitution.date).toLocaleDateString('en-US', {
-      month: 'long',
-      day: 'numeric',
-      year: 'numeric'
-  });
+  const isActionable = substitution.status === 'Pending' && currentUser?.id !== substitution.requesterId;
 
   return (
     <div className="flex flex-col min-h-screen bg-background">
@@ -101,19 +87,6 @@ export default function SubstitutionDetailPage() {
       </header>
 
       <main className="flex-1 p-6 space-y-8">
-        {currentUser?.role === 'teacher' && isSubjectMatch && substitution.status === 'Pending' && (
-            <Card className="bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800/40">
-                <CardContent className="p-4 flex items-center gap-4">
-                    <div className="bg-green-100 p-3 rounded-full dark:bg-green-900">
-                        <Star className="w-6 h-6 text-green-600 dark:text-green-400" />
-                    </div>
-                    <div>
-                        <h3 className="font-bold text-lg text-green-800 dark:text-green-300">It's a Subject Match!</h3>
-                        <p className="text-sm text-green-600 dark:text-green-400">This request is for a subject you teach.</p>
-                    </div>
-                </CardContent>
-            </Card>
-        )}
         
         {substitution.status === 'Accepted' && (
             <Card className="bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800/40">
@@ -130,58 +103,18 @@ export default function SubstitutionDetailPage() {
         )}
 
         <div>
-          <h2 className="text-2xl font-bold mb-2">Class Details</h2>
-          <p className="text-muted-foreground mb-4">Requested by {substitution.requesterName}</p>
-          <div className="space-y-6">
-            <div className="flex items-center gap-4">
-              <div className="bg-primary/10 p-3 rounded-full">
-                <BookOpen className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-muted-foreground">Subject</p>
-                <p className="font-bold text-lg">{substitution.subject}</p>
-              </div>
-            </div>
-             <div className="flex items-center gap-4">
-              <div className="bg-primary/10 p-3 rounded-full">
-                <GraduationCap className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-muted-foreground">Class</p>
-                <p className="font-bold text-lg">Grade {substitution.class.replace(/\D/g, '')}</p>
-              </div>
-            </div>
-             <div className="flex items-center gap-4">
-              <div className="bg-primary/10 p-3 rounded-full">
-                <Calendar className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-muted-foreground">Date</p>
-                <p className="font-bold text-lg">{formattedDate}</p>
-              </div>
-            </div>
-             <div className="flex items-center gap-4">
-              <div className="bg-primary/10 p-3 rounded-full">
-                <Clock className="w-6 h-6 text-primary" />
-              </div>
-              <div>
-                <p className="text-muted-foreground">Time Slot</p>
-                <p className="font-bold text-lg">{substitution.time}</p>
-              </div>
-            </div>
-          </div>
+            <h2 className="text-2xl font-bold mb-2">Request Details</h2>
+            <p className="text-muted-foreground mb-4">Requested by {substitution.requesterName}</p>
         </div>
         
-        {substitution.notes && (
-          <div>
-            <h2 className="text-2xl font-bold mb-4">Additional Notes</h2>
-            <Card>
-              <CardContent className="p-4">
-                <p className="text-muted-foreground">{substitution.notes}</p>
-              </CardContent>
-            </Card>
-          </div>
-        )}
+        <div>
+          <h3 className="text-xl font-bold mb-4">Note from Teacher</h3>
+          <Card>
+            <CardContent className="p-4">
+              <p className="text-muted-foreground whitespace-pre-wrap">{substitution.notes}</p>
+            </CardContent>
+          </Card>
+        </div>
       </main>
 
       {isActionable && currentUser?.role === 'teacher' && (

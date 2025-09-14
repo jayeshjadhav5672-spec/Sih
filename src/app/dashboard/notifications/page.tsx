@@ -20,7 +20,6 @@ import {
   DialogFooter,
   DialogClose,
 } from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
@@ -30,7 +29,7 @@ import { useToast } from '@/hooks/use-toast';
 
 export default function NotificationsPage() {
     const [substitutions, setSubstitutions] = useState<SubstitutionRequest[]>([]);
-    const [newRequest, setNewRequest] = useState({ subject: '', class: '', time: '', date: '', notes: '' });
+    const [note, setNote] = useState('');
     const [isDialogOpen, setIsDialogOpen] = useState(false);
     const [currentUser, setCurrentUser] = useState<any>(null);
     const { toast } = useToast();
@@ -38,37 +37,33 @@ export default function NotificationsPage() {
     useEffect(() => {
         const userStr = sessionStorage.getItem('currentUser');
         if (userStr) {
-            setCurrentUser(JSON.parse(userStr));
+            const user = JSON.parse(userStr);
+            setCurrentUser(user);
         }
 
         const storedSubstitutions = localStorage.getItem('substitutions');
         if (storedSubstitutions) {
-            setSubstitutions(JSON.parse(storedSubstitutions));
+            setSubstitutions(JSON.parse(storedSubstitutions).sort((a: any, b: any) => b.timestamp - a.timestamp));
         }
     }, []);
 
-    const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setNewRequest(prevState => ({ ...prevState, [name]: value }));
-    };
-
     const handleSendRequest = () => {
-        if (newRequest.subject && newRequest.class && newRequest.time && newRequest.date) {
+        if (note.trim()) {
             const newSub: SubstitutionRequest = {
                 id: `sub-${Date.now()}`,
+                timestamp: Date.now(),
                 status: 'Pending',
-                ...newRequest,
+                notes: note,
+                requesterId: currentUser?.id,
                 requesterName: currentUser?.fullName || 'A Teacher',
             };
             
-            console.log('Sending push notification for:', newSub);
-
             toast({
               title: "Request Sent",
               description: "Your substitution request has been sent to available teachers.",
             });
             
-            setNewRequest({ subject: '', class: '', time: '', date: '', notes: '' });
+            setNote('');
             
             const updatedSubs = [newSub, ...substitutions];
             setSubstitutions(updatedSubs);
@@ -77,8 +72,8 @@ export default function NotificationsPage() {
             setIsDialogOpen(false);
         } else {
            toast({
-              title: "Incomplete Request",
-              description: "Please fill out all the required fields.",
+              title: "Note is empty",
+              description: "Please write a note for your substitution request.",
               variant: "destructive"
             });
         }
@@ -107,26 +102,15 @@ export default function NotificationsPage() {
               <DialogTitle>New Substitution Request</DialogTitle>
             </DialogHeader>
             <div className="grid gap-4 py-4">
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="subject" className="text-right">Subject</Label>
-                <Input id="subject" name="subject" value={newRequest.subject} onChange={handleInputChange} className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="class" className="text-right">Class</Label>
-                <Input id="class" name="class" value={newRequest.class} onChange={handleInputChange} className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="time" className="text-right">Time</Label>
-                <Input id="time" name="time" value={newRequest.time} onChange={handleInputChange} className="col-span-3" />
-              </div>
-              <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="date" className="text-right">Date</Label>
-                <Input id="date" name="date" type="date" value={newRequest.date} onChange={handleInputChange} className="col-span-3" />
-              </div>
-               <div className="grid grid-cols-4 items-center gap-4">
-                <Label htmlFor="notes" className="text-right">Notes</Label>
-                <Textarea id="notes" name="notes" placeholder="e.g. Please cover chapter 5" value={newRequest.notes} onChange={handleInputChange} className="col-span-3" />
-              </div>
+              <Label htmlFor="notes">Note to Faculty</Label>
+              <Textarea 
+                id="notes" 
+                name="notes" 
+                placeholder="e.g. I won't be able to take the Physics lecture for Grade 12 at 10 AM. If you wish, you can take over the lecture." 
+                value={note} 
+                onChange={(e) => setNote(e.target.value)}
+                className="col-span-3 min-h-[120px]" 
+              />
             </div>
             <DialogFooter>
               <DialogClose asChild>
@@ -150,25 +134,20 @@ export default function NotificationsPage() {
                   <CardHeader>
                     <CardTitle className="flex justify-between items-start">
                       <div className="flex-1">
-                        <span>{sub.subject} - {sub.class}</span>
-                        <p className="text-sm font-normal text-muted-foreground pt-1">
-                          Requested by {sub.requesterName}
-                        </p>
+                        <span>Request from {sub.requesterName}</span>
                       </div>
                       <span className={`text-sm font-medium px-2 py-1 rounded-full whitespace-nowrap ${sub.status === 'Accepted' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
                         {sub.status}
                       </span>
                     </CardTitle>
-                    <CardDescription>
-                      {new Date(sub.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} at {sub.time}
+                     <CardDescription>
+                      {new Date(sub.timestamp).toLocaleString()}
                     </CardDescription>
                   </CardHeader>
                   <CardContent>
+                      <p className="text-sm text-muted-foreground truncate">{sub.notes}</p>
                       {sub.status === 'Accepted' && sub.acceptedBy && (
-                         <p className="text-sm text-green-600 font-semibold">Accepted by {sub.acceptedBy}</p>
-                      )}
-                      {sub.notes && sub.status !== 'Accepted' && (
-                          <p className="text-sm text-muted-foreground truncate">{sub.notes}</p>
+                         <p className="text-sm text-green-600 font-semibold pt-2">Accepted by {sub.acceptedBy}</p>
                       )}
                   </CardContent>
                 </Card>
