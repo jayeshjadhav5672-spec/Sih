@@ -4,7 +4,6 @@
 import Image from "next/image";
 import {
   Settings,
-  Plus,
   ArrowUp,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -15,8 +14,6 @@ import {
   CardHeader,
   CardTitle,
 } from "@/components/ui/card";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Badge } from "@/components/ui/badge";
 import { getStoredWallpapers, type ImagePlaceholder } from "@/lib/placeholder-images";
 import { AttendanceChart } from "@/components/attendance-chart";
 import { useEffect, useState } from "react";
@@ -25,11 +22,6 @@ const initialDivisions = [
   { id: "div-a", name: "Div A", imageId: "div-a-doodles-chalkboard" },
   { id: "div-b", name: "Div B", imageId: "div-b" },
   { id: "div-c", name: "Div C", imageId: "div-c" },
-];
-
-const faculty = [
-  { name: "Ms. Evelyn Reed", subject: "Math", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026704d" },
-  { name: "Mr. Ethan Carter", subject: "Science", avatar: "https://i.pravatar.cc/150?u=a042581f4e29026705d" },
 ];
 
 export default function DashboardPage() {
@@ -87,38 +79,6 @@ export default function DashboardPage() {
               </div>
             );
           })}
-        </div>
-      </section>
-
-      <section>
-        <div className="flex items-center justify-between mb-3">
-          <h2 className="text-xl font-semibold">Faculty Absences</h2>
-          <Button>
-            <Plus className="mr-2 h-4 w-4" /> Assign Substitute
-          </Button>
-        </div>
-        <div className="space-y-3">
-          {faculty.map((member, index) => (
-            <Card key={index}>
-              <CardContent className="p-4 flex items-center justify-between">
-                <div className="flex items-center gap-4">
-                  <Avatar>
-                    <AvatarImage src={member.avatar} />
-                    <AvatarFallback>{member.name.charAt(0)}</AvatarFallback>
-                  </Avatar>
-                  <div>
-                    <p className="font-semibold">{member.name}</p>
-                    <p className="text-sm text-muted-foreground">
-                      {member.subject}
-                    </p>
-                  </div>
-                </div>
-                <Badge variant="destructive" className="bg-red-100 text-red-600 border-red-200">
-                  Absent
-                </Badge>
-              </CardContent>
-            </Card>
-          ))}
         </div>
       </section>
 
