@@ -1,15 +1,20 @@
-import Link from "next/link";
+
+'use client';
+import Link from 'next/link';
 import {
   CalendarDays,
   Bell,
   User,
-} from "lucide-react";
+} from 'lucide-react';
+import { usePathname } from 'next/navigation';
 
 export default function DashboardLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const pathname = usePathname();
+
   return (
     <div className="flex flex-col min-h-screen">
       <main className="flex-1 bg-background pb-20">{children}</main>
@@ -17,7 +22,7 @@ export default function DashboardLayout({
         <nav className="flex justify-around items-center h-16">
           <Link
             href="/dashboard"
-            className="flex flex-col items-center text-muted-foreground hover:text-primary"
+            className={`flex flex-col items-center hover:text-primary ${pathname === '/dashboard' ? 'text-primary' : 'text-muted-foreground'}`}
           >
             <CalendarDays className="h-6 w-6" />
             <span className="text-xs font-medium">My Timetable</span>
@@ -31,7 +36,7 @@ export default function DashboardLayout({
           </Link>
           <Link
             href="/dashboard/profile"
-            className="flex flex-col items-center text-primary"
+            className={`flex flex-col items-center hover:text-primary ${pathname === '/dashboard/profile' ? 'text-primary' : 'text-muted-foreground'}`}
           >
             <User className="h-6 w-6" />
             <span className="text-xs">Profile</span>

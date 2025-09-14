@@ -20,7 +20,7 @@ import { Badge } from "@/components/ui/badge";
 import { PlaceHolderImages } from "@/lib/placeholder-images";
 import { AttendanceChart } from "@/components/attendance-chart";
 
-const divisions = [
+const initialDivisions = [
   { id: "div-a", name: "Div A", imageId: "div-a-doodles-chalkboard-illustration" },
   { id: "div-b", name: "Div B", imageId: "div-b" },
   { id: "div-c", name: "Div C", imageId: "div-c" },
@@ -32,6 +32,11 @@ const faculty = [
 ];
 
 export default function DashboardPage() {
+  // In a real app, this state would be managed globally or fetched from an API
+  // For now, we simulate it being passed down or held in a higher-level component.
+  // We won't re-implement state management here to keep the example focused.
+  const divisions = initialDivisions;
+
   return (
     <div className="p-4 md:p-6 space-y-6">
       <header className="flex items-center justify-between">

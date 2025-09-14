@@ -1,6 +1,6 @@
 
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useTheme } from "next-themes";
@@ -34,7 +34,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { PlaceHolderImages } from '@/lib/placeholder-images';
+import { PlaceHolderImages, type ImagePlaceholder } from '@/lib/placeholder-images';
 
 
 export default function ProfilePage() {
@@ -47,11 +47,34 @@ export default function ProfilePage() {
     const [email, setEmail] = useState('ethan.carter@example.com');
     const [phone, setPhone] = useState('+1 (555) 123-4567');
     
-    // In a real app, this would likely come from a global state or API
-    const [divAWallpaper, setDivAWallpaper] = useState(PlaceHolderImages.find(p => p.id === 'div-a-doodles-chalkboard-illustration')?.imageUrl || '');
-    const [divBWallpaper, setDivBWallpaper] = useState(PlaceHolderImages.find(p => p.id === 'div-b')?.imageUrl || '');
-    const [divCWallpaper, setDivCWallpaper] = useState(PlaceHolderImages.find(p => p.id === 'div-c')?.imageUrl || '');
+    // This state will now hold the image data and be the source of truth
+    const [wallpapers, setWallpapers] = useState<ImagePlaceholder[]>([]);
 
+    useEffect(() => {
+        // On component mount, we try to load saved wallpapers from localStorage.
+        // If not present, we initialize with default placeholders.
+        try {
+            const savedWallpapers = localStorage.getItem('divisionalWallpapers');
+            if (savedWallpapers) {
+                setWallpapers(JSON.parse(savedWallpapers));
+            } else {
+                setWallpapers(PlaceHolderImages);
+            }
+        } catch (error) {
+            console.error("Failed to load wallpapers from localStorage", error);
+            setWallpapers(PlaceHolderImages);
+        }
+    }, []);
+
+    const saveWallpapers = (newWallpapers: ImagePlaceholder[]) => {
+        setWallpapers(newWallpapers);
+        try {
+            // Persist changes to localStorage so they are not lost on refresh
+            localStorage.setItem('divisionalWallpapers', JSON.stringify(newWallpapers));
+        } catch (error) {
+            console.error("Failed to save wallpapers to localStorage", error);
+        }
+    }
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -65,12 +88,16 @@ export default function ProfilePage() {
         }
     };
     
-    const handleWallpaperChange = (setter: React.Dispatch<React.SetStateAction<string>>) => (e: React.ChangeEvent<HTMLInputElement>) => {
+    const handleWallpaperChange = (id: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
             const reader = new FileReader();
             reader.onload = (event) => {
                 if(event.target?.result) {
-                    setter(event.target.result as string);
+                   const newImageUrl = event.target.result as string;
+                   const updatedWallpapers = wallpapers.map(wp => 
+                       wp.id === id ? { ...wp, imageUrl: newImageUrl } : wp
+                   );
+                   saveWallpapers(updatedWallpapers);
                 }
             };
             reader.readAsDataURL(e.target.files[0]);
@@ -118,9 +145,9 @@ export default function ProfilePage() {
             className="hidden" 
             accept="image/*"
         />
-         <input type="file" ref={divAWallpaperInputRef} onChange={handleWallpaperChange(setDivAWallpaper)} className="hidden" accept="image/*" />
-        <input type="file" ref={divBWallpaperInputRef} onChange={handleWallpaperChange(setDivBWallpaper)} className="hidden" accept="image/*" />
-        <input type="file" ref={divCWallpaperInputRef} onChange={handleWallpaperChange(setDivCWallpaper)} className="hidden" accept="image/*" />
+         <input type="file" ref={divAWallpaperInputRef} onChange={handleWallpaperChange('div-a-doodles-chalkboard-illustration')} className="hidden" accept="image/*" />
+         <input type="file" ref={divBWallpaperInputRef} onChange={handleWallpaperChange('div-b')} className="hidden" accept="image/*" />
+         <input type="file" ref={divCWallpaperInputRef} onChange={handleWallpaperChange('div-c')} className="hidden" accept="image/*" />
 
         <div className="text-center mb-2">
           <h2 className="text-2xl font-bold">Ethan Carter</h2>
@@ -347,5 +374,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-    
