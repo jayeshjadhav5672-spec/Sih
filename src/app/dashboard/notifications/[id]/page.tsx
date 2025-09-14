@@ -2,18 +2,19 @@
 'use client';
 
 import { useParams, useRouter } from 'next/navigation';
-import { ArrowLeft, BookOpen, GraduationCap, Calendar, Clock, Star } from 'lucide-react';
+import { ArrowLeft, BookOpen, GraduationCap, Calendar, Clock, Star, UserCheck } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { initialSubstitutions } from '@/lib/substitutions-data';
+import { SubstitutionRequest } from '@/lib/substitutions-data';
 import { useState, useEffect } from 'react';
-import type { SubstitutionRequest } from '@/lib/substitutions-data';
+import { useToast } from '@/hooks/use-toast';
 
 export default function SubstitutionDetailPage() {
   const router = useRouter();
   const params = useParams();
   const { id } = params;
+  const { toast } = useToast();
   
   const [substitution, setSubstitution] = useState<SubstitutionRequest | null>(null);
   const [isSubjectMatch, setIsSubjectMatch] = useState(false);
@@ -24,8 +25,10 @@ export default function SubstitutionDetailPage() {
     if (userStr) {
       const user = JSON.parse(userStr);
       setCurrentUser(user);
+      
+      const allSubs: SubstitutionRequest[] = JSON.parse(localStorage.getItem('substitutions') || '[]');
+      const sub = allSubs.find((s) => s.id === id);
 
-      const sub = initialSubstitutions.find((s) => s.id === id);
       if (sub) {
         setSubstitution(sub);
         
@@ -50,15 +53,37 @@ export default function SubstitutionDetailPage() {
   }
 
   const handleDecline = () => {
-    console.log('Declined substitution:', id);
+    toast({
+        title: "Request Declined",
+        description: "You have declined the substitution request.",
+    });
     router.back();
   };
 
   const handleAccept = () => {
-    console.log('Accepted substitution:', id);
-    router.back();
+    if (!currentUser) return;
+    
+    const allSubs: SubstitutionRequest[] = JSON.parse(localStorage.getItem('substitutions') || '[]');
+    const subIndex = allSubs.findIndex(s => s.id === id);
+    if (subIndex !== -1) {
+        allSubs[subIndex].status = 'Accepted';
+        allSubs[subIndex].acceptedBy = currentUser.fullName; // Save the name of the acceptor
+        
+        localStorage.setItem('substitutions', JSON.stringify(allSubs));
+
+        setSubstitution(allSubs[subIndex]); // Update local state to re-render page
+        
+        toast({
+            title: "Request Accepted!",
+            description: `You are now scheduled to substitute for ${allSubs[subIndex].subject}.`,
+        });
+    }
+
+    router.push('/dashboard/notifications');
   };
   
+  const isActionable = substitution.status === 'Pending' && currentUser?.id !== substitution.requesterName;
+
   const formattedDate = new Date(substitution.date).toLocaleDateString('en-US', {
       month: 'long',
       day: 'numeric',
@@ -76,7 +101,7 @@ export default function SubstitutionDetailPage() {
       </header>
 
       <main className="flex-1 p-6 space-y-8">
-        {currentUser?.role === 'teacher' && isSubjectMatch && (
+        {currentUser?.role === 'teacher' && isSubjectMatch && substitution.status === 'Pending' && (
             <Card className="bg-green-50 dark:bg-green-900/30 border-green-200 dark:border-green-800/40">
                 <CardContent className="p-4 flex items-center gap-4">
                     <div className="bg-green-100 p-3 rounded-full dark:bg-green-900">
@@ -89,9 +114,24 @@ export default function SubstitutionDetailPage() {
                 </CardContent>
             </Card>
         )}
+        
+        {substitution.status === 'Accepted' && (
+            <Card className="bg-blue-50 dark:bg-blue-900/30 border-blue-200 dark:border-blue-800/40">
+                <CardContent className="p-4 flex items-center gap-4">
+                    <div className="bg-blue-100 p-3 rounded-full dark:bg-blue-900">
+                        <UserCheck className="w-6 h-6 text-blue-600 dark:text-blue-400" />
+                    </div>
+                    <div>
+                        <h3 className="font-bold text-lg text-blue-800 dark:text-blue-300">Request Accepted</h3>
+                        <p className="text-sm text-blue-600 dark:text-blue-400">This substitution has been accepted by {substitution.acceptedBy}.</p>
+                    </div>
+                </CardContent>
+            </Card>
+        )}
 
         <div>
-          <h2 className="text-2xl font-bold mb-4">Class Details</h2>
+          <h2 className="text-2xl font-bold mb-2">Class Details</h2>
+          <p className="text-muted-foreground mb-4">Requested by {substitution.requesterName}</p>
           <div className="space-y-6">
             <div className="flex items-center gap-4">
               <div className="bg-primary/10 p-3 rounded-full">
@@ -144,12 +184,14 @@ export default function SubstitutionDetailPage() {
         )}
       </main>
 
-      <footer className="sticky bottom-0 bg-background p-4 border-t">
-        <div className="grid grid-cols-2 gap-4">
-          <Button variant="outline" size="lg" onClick={handleDecline}>Decline</Button>
-          <Button size="lg" onClick={handleAccept}>Accept</Button>
-        </div>
-      </footer>
+      {isActionable && currentUser?.role === 'teacher' && (
+        <footer className="sticky bottom-0 bg-background p-4 border-t">
+          <div className="grid grid-cols-2 gap-4">
+            <Button variant="outline" size="lg" onClick={handleDecline}>Decline</Button>
+            <Button size="lg" onClick={handleAccept}>Accept</Button>
+          </div>
+        </footer>
+       )}
     </div>
   );
 }

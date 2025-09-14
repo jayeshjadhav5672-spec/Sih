@@ -1,7 +1,7 @@
 
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Plus, ArrowLeft } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -24,15 +24,28 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import Link from 'next/link';
-import { initialSubstitutions, SubstitutionRequest } from '@/lib/substitutions-data';
+import { SubstitutionRequest } from '@/lib/substitutions-data';
 import { useToast } from '@/hooks/use-toast';
 
 
 export default function NotificationsPage() {
-    const [substitutions, setSubstitutions] = useState<SubstitutionRequest[]>(initialSubstitutions);
+    const [substitutions, setSubstitutions] = useState<SubstitutionRequest[]>([]);
     const [newRequest, setNewRequest] = useState({ subject: '', class: '', time: '', date: '', notes: '' });
     const [isDialogOpen, setIsDialogOpen] = useState(false);
+    const [currentUser, setCurrentUser] = useState<any>(null);
     const { toast } = useToast();
+
+    useEffect(() => {
+        const userStr = sessionStorage.getItem('currentUser');
+        if (userStr) {
+            setCurrentUser(JSON.parse(userStr));
+        }
+
+        const storedSubstitutions = localStorage.getItem('substitutions');
+        if (storedSubstitutions) {
+            setSubstitutions(JSON.parse(storedSubstitutions));
+        }
+    }, []);
 
     const handleInputChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const { name, value } = e.target;
@@ -44,7 +57,8 @@ export default function NotificationsPage() {
             const newSub: SubstitutionRequest = {
                 id: `sub-${Date.now()}`,
                 status: 'Pending',
-                ...newRequest
+                ...newRequest,
+                requesterName: currentUser?.fullName || 'A Teacher',
             };
             
             console.log('Sending push notification for:', newSub);
@@ -56,7 +70,9 @@ export default function NotificationsPage() {
             
             setNewRequest({ subject: '', class: '', time: '', date: '', notes: '' });
             
-            setSubstitutions(prevSubs => [newSub, ...prevSubs]);
+            const updatedSubs = [newSub, ...substitutions];
+            setSubstitutions(updatedSubs);
+            localStorage.setItem('substitutions', JSON.stringify(updatedSubs));
 
             setIsDialogOpen(false);
         } else {
@@ -80,9 +96,11 @@ export default function NotificationsPage() {
         <h1 className="text-xl font-bold">Substitutions</h1>
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button variant="default" size="icon" onClick={() => setIsDialogOpen(true)}>
-              <Plus className="w-6 h-6" />
-            </Button>
+             {currentUser?.role === 'teacher' && (
+                <Button variant="default" size="icon" onClick={() => setIsDialogOpen(true)}>
+                    <Plus className="w-6 h-6" />
+                </Button>
+             )}
           </DialogTrigger>
           <DialogContent>
             <DialogHeader>
@@ -107,7 +125,7 @@ export default function NotificationsPage() {
               </div>
                <div className="grid grid-cols-4 items-center gap-4">
                 <Label htmlFor="notes" className="text-right">Notes</Label>
-                <Textarea id="notes" name="notes" value={newRequest.notes} onChange={handleInputChange} className="col-span-3" />
+                <Textarea id="notes" name="notes" placeholder="e.g. Please cover chapter 5" value={newRequest.notes} onChange={handleInputChange} className="col-span-3" />
               </div>
             </div>
             <DialogFooter>
@@ -123,16 +141,21 @@ export default function NotificationsPage() {
       <main className="p-4 md:p-6 space-y-4 pb-20">
         {substitutions.length === 0 ? (
           <div className="text-center text-muted-foreground mt-12">
-            <p>You haven't sent any substitution requests yet.</p>
+            <p>No substitution requests yet.</p>
           </div>
         ) : (
           substitutions.map((sub) => (
             <Link href={`/dashboard/notifications/${sub.id}`} key={sub.id} passHref>
                <Card>
                   <CardHeader>
-                    <CardTitle className="flex justify-between items-center">
-                      <span>{sub.subject} - {sub.class}</span>
-                      <span className={`text-sm font-medium px-2 py-1 rounded-full ${sub.status === 'Accepted' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
+                    <CardTitle className="flex justify-between items-start">
+                      <div className="flex-1">
+                        <span>{sub.subject} - {sub.class}</span>
+                        <p className="text-sm font-normal text-muted-foreground pt-1">
+                          Requested by {sub.requesterName}
+                        </p>
+                      </div>
+                      <span className={`text-sm font-medium px-2 py-1 rounded-full whitespace-nowrap ${sub.status === 'Accepted' ? 'bg-green-100 text-green-800' : 'bg-yellow-100 text-yellow-800'}`}>
                         {sub.status}
                       </span>
                     </CardTitle>
@@ -140,11 +163,14 @@ export default function NotificationsPage() {
                       {new Date(sub.date).toLocaleDateString('en-US', { month: 'long', day: 'numeric', year: 'numeric' })} at {sub.time}
                     </CardDescription>
                   </CardHeader>
-                  {sub.notes && (
-                      <CardContent>
+                  <CardContent>
+                      {sub.status === 'Accepted' && sub.acceptedBy && (
+                         <p className="text-sm text-green-600 font-semibold">Accepted by {sub.acceptedBy}</p>
+                      )}
+                      {sub.notes && sub.status !== 'Accepted' && (
                           <p className="text-sm text-muted-foreground truncate">{sub.notes}</p>
-                      </CardContent>
-                  )}
+                      )}
+                  </CardContent>
                 </Card>
             </Link>
           ))
