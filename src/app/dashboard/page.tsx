@@ -17,8 +17,9 @@ import {
 } from "@/components/ui/card";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Badge } from "@/components/ui/badge";
-import { PlaceHolderImages } from "@/lib/placeholder-images";
+import { getStoredWallpapers, type ImagePlaceholder } from "@/lib/placeholder-images";
 import { AttendanceChart } from "@/components/attendance-chart";
+import { useEffect, useState } from "react";
 
 const initialDivisions = [
   { id: "div-a", name: "Div A", imageId: "div-a-doodles-chalkboard-illustration" },
@@ -32,10 +33,23 @@ const faculty = [
 ];
 
 export default function DashboardPage() {
-  // In a real app, this state would be managed globally or fetched from an API
-  // For now, we simulate it being passed down or held in a higher-level component.
-  // We won't re-implement state management here to keep the example focused.
-  const divisions = initialDivisions;
+  const [wallpapers, setWallpapers] = useState<ImagePlaceholder[]>([]);
+
+  useEffect(() => {
+    // On component mount, we load the latest wallpapers, which might have been updated from the profile page.
+    setWallpapers(getStoredWallpapers());
+
+    const handleStorageChange = () => {
+        setWallpapers(getStoredWallpapers());
+    };
+    
+    window.addEventListener('storage', handleStorageChange);
+
+    return () => {
+        window.removeEventListener('storage', handleStorageChange);
+    };
+
+  }, []);
 
   return (
     <div className="p-4 md:p-6 space-y-6">
@@ -49,8 +63,8 @@ export default function DashboardPage() {
       <section>
         <h2 className="text-xl font-semibold mb-3">Divisional Timetables</h2>
         <div className="flex gap-4 overflow-x-auto pb-4">
-          {divisions.map((division) => {
-            const image = PlaceHolderImages.find(
+          {initialDivisions.map((division) => {
+            const image = wallpapers.find(
               (img) => img.id === division.imageId
             );
             return (

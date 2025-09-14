@@ -34,7 +34,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
 import { Separator } from '@/components/ui/separator';
-import { PlaceHolderImages, type ImagePlaceholder } from '@/lib/placeholder-images';
+import { getStoredWallpapers, type ImagePlaceholder } from '@/lib/placeholder-images';
 
 
 export default function ProfilePage() {
@@ -51,19 +51,8 @@ export default function ProfilePage() {
     const [wallpapers, setWallpapers] = useState<ImagePlaceholder[]>([]);
 
     useEffect(() => {
-        // On component mount, we try to load saved wallpapers from localStorage.
-        // If not present, we initialize with default placeholders.
-        try {
-            const savedWallpapers = localStorage.getItem('divisionalWallpapers');
-            if (savedWallpapers) {
-                setWallpapers(JSON.parse(savedWallpapers));
-            } else {
-                setWallpapers(PlaceHolderImages);
-            }
-        } catch (error) {
-            console.error("Failed to load wallpapers from localStorage", error);
-            setWallpapers(PlaceHolderImages);
-        }
+        // On component mount, we load the latest wallpapers.
+        setWallpapers(getStoredWallpapers());
     }, []);
 
     const saveWallpapers = (newWallpapers: ImagePlaceholder[]) => {
@@ -71,6 +60,8 @@ export default function ProfilePage() {
         try {
             // Persist changes to localStorage so they are not lost on refresh
             localStorage.setItem('divisionalWallpapers', JSON.stringify(newWallpapers));
+            // Dispatch a storage event to notify other open tabs/windows
+            window.dispatchEvent(new Event('storage'));
         } catch (error) {
             console.error("Failed to save wallpapers to localStorage", error);
         }
