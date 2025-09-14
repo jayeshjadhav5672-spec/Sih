@@ -3,7 +3,7 @@
 import { useSearchParams } from 'next/navigation';
 import { useActionState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { AlertTriangle, CheckCircle2, Loader2, User, Lock } from 'lucide-react';
+import { AlertTriangle, CheckCircle2, Loader2, User, Lock, School } from 'lucide-react';
 import { useState } from 'react';
 import Link from 'next/link';
 
@@ -62,6 +62,12 @@ export function LoginForm() {
                 <AlertDescription>{state.error}</AlertDescription>
               </Alert>
             )}
+            <div className="space-y-2">
+              <div className="relative">
+                <School className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                <Input id="college" name="college" placeholder="College Name" type="text" required className="pl-10" />
+              </div>
+            </div>
             <div className="space-y-2">
               <div className="relative">
                 <User className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
