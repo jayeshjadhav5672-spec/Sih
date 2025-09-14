@@ -11,7 +11,6 @@ import {
   Lock,
   Settings,
   LogOut,
-  Edit2,
   Upload,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
