@@ -33,6 +33,8 @@ import {
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Switch } from '@/components/ui/switch';
+import { Separator } from '@/components/ui/separator';
+import { PlaceHolderImages } from '@/lib/placeholder-images';
 
 
 export default function ProfilePage() {
@@ -41,6 +43,12 @@ export default function ProfilePage() {
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [email, setEmail] = useState('ethan.carter@example.com');
     const [phone, setPhone] = useState('+1 (555) 123-4567');
+    
+    // In a real app, this would likely come from a global state or API
+    const [divAWallpaper, setDivAWallpaper] = useState(PlaceHolderImages.find(p => p.id === 'div-a-doodles-chalkboard-illustration')?.imageUrl || '');
+    const [divBWallpaper, setDivBWallpaper] = useState(PlaceHolderImages.find(p => p.id === 'div-b')?.imageUrl || '');
+    const [divCWallpaper, setDivCWallpaper] = useState(PlaceHolderImages.find(p => p.id === 'div-c')?.imageUrl || '');
+
 
     const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -240,23 +248,49 @@ export default function ProfilePage() {
                         </CardContent>
                     </Card>
                 </DialogTrigger>
-                <DialogContent>
+                <DialogContent className="max-h-[80vh] overflow-y-auto">
                     <DialogHeader>
                         <DialogTitle>App Settings</DialogTitle>
                     </DialogHeader>
-                    <div className="grid gap-4 py-4">
-                        <div className="flex items-center justify-between">
-                            <Label htmlFor="dark-mode">Dark Mode</Label>
-                            <Switch 
-                                id="dark-mode" 
-                                checked={theme === 'dark'}
-                                onCheckedChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                            />
+                    <div className="grid gap-6 py-4">
+                        <div>
+                             <h3 className="text-lg font-semibold mb-4">General</h3>
+                             <div className="space-y-4">
+                                <div className="flex items-center justify-between">
+                                    <Label htmlFor="dark-mode">Dark Mode</Label>
+                                    <Switch 
+                                        id="dark-mode" 
+                                        checked={theme === 'dark'}
+                                        onCheckedChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                                    />
+                                </div>
+                                <div className="flex items-center justify-between">
+                                    <Label htmlFor="notifications">Enable Notifications</Label>
+                                    <Switch id="notifications" defaultChecked />
+                                </div>
+                             </div>
                         </div>
-                        <div className="flex items-center justify-between">
-                            <Label htmlFor="notifications">Enable Notifications</Label>
-                            <Switch id="notifications" checked />
+
+                        <Separator />
+                        
+                        <div>
+                            <h3 className="text-lg font-semibold mb-4">Divisional Wallpapers</h3>
+                            <div className="space-y-4">
+                                <div className="grid w-full items-center gap-1.5">
+                                    <Label htmlFor="div-a-url">Div A Wallpaper URL</Label>
+                                    <Input id="div-a-url" value={divAWallpaper} onChange={(e) => setDivAWallpaper(e.target.value)} />
+                                </div>
+                                 <div className="grid w-full items-center gap-1.5">
+                                    <Label htmlFor="div-b-url">Div B Wallpaper URL</Label>
+                                    <Input id="div-b-url" value={divBWallpaper} onChange={(e) => setDivBWallpaper(e.target.value)} />
+                                </div>
+                                 <div className="grid w-full items-center gap-1.5">
+                                    <Label htmlFor="div-c-url">Div C Wallpaper URL</Label>
+                                    <Input id="div-c-url" value={divCWallpaper} onChange={(e) => setDivCWallpaper(e.target.value)} />
+                                </div>
+                            </div>
                         </div>
+
                     </div>
                     <DialogFooter>
                         <DialogClose asChild>
