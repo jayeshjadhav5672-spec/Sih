@@ -136,7 +136,7 @@ export default function ProfilePage() {
             className="hidden" 
             accept="image/*"
         />
-         <input type="file" ref={divAWallpaperInputRef} onChange={handleWallpaperChange('div-a-doodles-chalkboard-illustration')} className="hidden" accept="image/*" />
+         <input type="file" ref={divAWallpaperInputRef} onChange={handleWallpaperChange('div-a-doodles-chalkboard')} className="hidden" accept="image/*" />
          <input type="file" ref={divBWallpaperInputRef} onChange={handleWallpaperChange('div-b')} className="hidden" accept="image/*" />
          <input type="file" ref={divCWallpaperInputRef} onChange={handleWallpaperChange('div-c')} className="hidden" accept="image/*" />
 

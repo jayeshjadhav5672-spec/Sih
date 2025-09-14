@@ -22,7 +22,7 @@ import { AttendanceChart } from "@/components/attendance-chart";
 import { useEffect, useState } from "react";
 
 const initialDivisions = [
-  { id: "div-a", name: "Div A", imageId: "div-a-doodles-chalkboard-illustration" },
+  { id: "div-a", name: "Div A", imageId: "div-a-doodles-chalkboard" },
   { id: "div-b", name: "Div B", imageId: "div-b" },
   { id: "div-c", name: "Div C", imageId: "div-c" },
 ];
