@@ -14,6 +14,8 @@ import {
   LogOut,
   Upload,
   Edit,
+  Trash2,
+  Image as ImageIcon,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -95,6 +97,10 @@ export default function ProfilePage() {
             reader.readAsDataURL(e.target.files[0]);
         }
     };
+
+    const handleRemoveImage = () => {
+        setProfileImage('');
+    }
     
     const handleWallpaperChange = (id: string) => (e: React.ChangeEvent<HTMLInputElement>) => {
         if (e.target.files && e.target.files[0]) {
@@ -112,7 +118,7 @@ export default function ProfilePage() {
         }
     };
 
-    const handleEditClick = () => {
+    const handleUploadClick = () => {
         fileInputRef.current?.click();
     };
 
@@ -137,12 +143,28 @@ export default function ProfilePage() {
                     <AvatarFallback>{name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                 </Avatar>
                 <div className="absolute inset-0 bg-black/30 rounded-full opacity-0 hover:opacity-100 flex items-center justify-center transition-opacity">
-                  <p className="text-white text-sm font-semibold">View Image</p>
+                    <ImageIcon className="w-8 h-8 text-white" />
                 </div>
             </div>
           </DialogTrigger>
-          <DialogContent className="max-w-md w-auto p-0">
-            <Image src={profileImage} alt="Profile Image" width={500} height={500} className="rounded-lg" />
+          <DialogContent className="max-w-xs">
+            <DialogHeader>
+              <DialogTitle className="text-center">Change Profile Photo</DialogTitle>
+            </DialogHeader>
+            <div className="grid gap-2 py-4">
+              <DialogClose asChild>
+                <Button variant="outline" onClick={handleUploadClick}>
+                  <Upload className="mr-2 h-4 w-4" />
+                  Upload Photo
+                </Button>
+              </DialogClose>
+              <DialogClose asChild>
+                <Button variant="destructive" onClick={handleRemoveImage}>
+                   <Trash2 className="mr-2 h-4 w-4" />
+                   Remove Photo
+                </Button>
+              </DialogClose>
+            </div>
           </DialogContent>
         </Dialog>
         
@@ -157,7 +179,7 @@ export default function ProfilePage() {
          <input type="file" ref={divBWallpaperInputRef} onChange={handleWallpaperChange('div-b')} className="hidden" accept="image/*" />
          <input type="file" ref={divCWallpaperInputRef} onChange={handleWallpaperChange('div-c')} className="hidden" accept="image/*" />
 
-        <div className="text-center mb-2">
+        <div className="text-center mb-8">
             <Dialog>
                 <DialogTrigger asChild>
                     <div className="flex items-center justify-center gap-2 cursor-pointer group">
@@ -185,11 +207,6 @@ export default function ProfilePage() {
           <p className="text-muted-foreground">Teacher</p>
           <p className="text-muted-foreground text-sm">ID: 123456</p>
         </div>
-
-        <Button onClick={handleEditClick} variant="outline" className="mb-8">
-            <Upload className="mr-2 h-4 w-4" />
-            Upload Image
-        </Button>
 
         <div className="w-full max-w-md space-y-3">
             {/* Email Dialog */}
@@ -405,3 +422,5 @@ export default function ProfilePage() {
     </div>
   );
 }
+
+    
