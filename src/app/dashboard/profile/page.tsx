@@ -13,6 +13,7 @@ import {
   Settings,
   LogOut,
   Upload,
+  Edit,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
@@ -159,7 +160,10 @@ export default function ProfilePage() {
         <div className="text-center mb-2">
             <Dialog>
                 <DialogTrigger asChild>
-                    <h2 className="text-2xl font-bold cursor-pointer hover:underline">{name}</h2>
+                    <div className="flex items-center justify-center gap-2 cursor-pointer group">
+                      <h2 className="text-2xl font-bold group-hover:underline">{name}</h2>
+                      <Edit className="w-5 h-5 text-muted-foreground group-hover:text-primary" />
+                    </div>
                 </DialogTrigger>
                 <DialogContent>
                     <DialogHeader>
@@ -401,5 +405,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-    
