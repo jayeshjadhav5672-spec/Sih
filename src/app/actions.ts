@@ -3,6 +3,7 @@
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { validatePasswordStrength } from '@/ai/flows/password-strength-validation';
+import { generateTemporaryPassword } from '@/ai/flows/password-reset';
 
 const loginSchema = z.object({
   email: z.string().email(),
@@ -76,4 +77,44 @@ export async function signupUser(prevState: SignupState, formData: FormData): Pr
   }
 
   return { success: true };
+}
+
+
+const resetPasswordSchema = z.object({
+  email: z.string().email('Invalid email address.'),
+});
+
+type ResetPasswordState = {
+  error?: string;
+  success?: boolean;
+  newPassword?: string;
+} | null;
+
+
+export async function resetPassword(prevState: ResetPasswordState, formData: FormData): Promise<ResetPasswordState> {
+    const validatedFields = resetPasswordSchema.safeParse(Object.fromEntries(formData.entries()));
+
+    if (!validatedFields.success) {
+        return { error: 'Please enter a valid email address.' };
+    }
+
+    const { email } = validatedFields.data;
+
+    try {
+        const { password: newPassword } = await generateTemporaryPassword();
+        
+        // This is a placeholder. In a real app, you would:
+        // 1. Find the user by email in your database.
+        // 2. If the user exists, hash the newPassword.
+        // 3. Save the hashed password to the user's record.
+        // 4. Send an email to the user with the new password or a reset link.
+        console.log(`Password for ${email} reset to: ${newPassword}. In a real app, this would be emailed and the original would be updated in the database.`);
+
+
+        return { success: true, newPassword };
+
+    } catch (e) {
+        console.error("Could not generate temporary password.", e);
+        return { error: 'There was a problem resetting your password. Please try again later.' };
+    }
 }
