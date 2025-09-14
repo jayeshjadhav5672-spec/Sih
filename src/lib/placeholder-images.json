@@ -2,9 +2,9 @@
   "placeholderImages": [
     {
       "id": "div-a",
-      "description": "Classroom with a green chalkboard",
-      "imageUrl": "https://picsum.photos/seed/div-a/200/120",
-      "imageHint": "classroom chalkboard"
+      "description": "Illustration of a classroom with desks and a blackboard",
+      "imageUrl": "https://picsum.photos/seed/div-a-new/200/120",
+      "imageHint": "classroom illustration"
     },
     {
       "id": "div-b",
