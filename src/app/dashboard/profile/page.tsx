@@ -139,7 +139,7 @@ export default function ProfilePage() {
           <DialogTrigger asChild>
             <div className="relative mb-4 cursor-pointer">
                 <Avatar className="w-32 h-32 border-4 border-card">
-                    <AvatarImage src={profileImage} alt={name} />
+                    {profileImage && <AvatarImage src={profileImage} alt={name} />}
                     <AvatarFallback>{name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
                 </Avatar>
                 <div className="absolute inset-0 bg-black/30 rounded-full opacity-0 hover:opacity-100 flex items-center justify-center transition-opacity">
@@ -153,7 +153,7 @@ export default function ProfilePage() {
             </DialogHeader>
             <div className="flex justify-center py-4">
               <Avatar className="w-40 h-40 border-4 border-card">
-                <AvatarImage src={profileImage} alt={name} />
+                {profileImage && <AvatarImage src={profileImage} alt={name} />}
                 <AvatarFallback>{name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
               </Avatar>
             </div>
@@ -428,5 +428,3 @@ export default function ProfilePage() {
     </div>
   );
 }
-
-    
