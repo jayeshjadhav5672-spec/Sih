@@ -42,6 +42,7 @@ type SignupState = {
     password?: string[];
     role?: string[];
   };
+  success?: boolean;
 } | null;
 
 export async function signupUser(prevState: SignupState, formData: FormData): Promise<SignupState> {
@@ -71,8 +72,8 @@ export async function signupUser(prevState: SignupState, formData: FormData): Pr
     // In case of an error with the AI service, we can choose to
     // either block the signup or allow it. For better user experience,
     // we will allow it here.
+    return { success: true };
   }
 
-
-  redirect('/?message=Signup successful! Please log in.');
+  return { success: true };
 }

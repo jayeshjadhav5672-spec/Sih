@@ -33,7 +33,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { validatePasswordStrength } from '@/ai/flows/password-strength-validation';
+import { signupUser as signupUserAction } from '@/app/actions';
 import { useToast } from '@/hooks/use-toast';
 
 const formSchema = z.object({
@@ -67,51 +67,50 @@ export function SignupForm() {
       password: '',
     },
   });
+  
+  const [state, formAction] = useActionState(signupUserAction, null);
 
-  const onSubmit = async (values: z.infer<typeof formSchema>) => {
-    const passwordStrength = await validatePasswordStrength({ password: values.password });
+  useEffect(() => {
+    if (state?.success) {
+      const values = form.getValues();
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const existingUser = users.find((u: any) => u.email === values.email);
 
-    if (!passwordStrength.isStrong) {
-      const reason = passwordStrength.reason || 'This password is too common. Please choose a stronger one.';
-      form.setError('password', { type: 'server', message: reason });
-      return;
+      if (existingUser) {
+        form.setError('email', { type: 'server', message: 'An account with this email already exists.' });
+        return;
+      }
+
+      const newUser = {
+        id: `user-${Date.now()}`,
+        ...values,
+        profileImage: `https://i.pravatar.cc/150?u=${values.email}`,
+        phone: '',
+      };
+
+      users.push(newUser);
+      localStorage.setItem('users', JSON.stringify(users));
+      
+      const profileData = JSON.parse(localStorage.getItem('profileData') || '{}');
+      profileData[newUser.id] = {
+        name: newUser.fullName,
+        email: newUser.email,
+        phone: newUser.phone,
+        profileImage: newUser.profileImage,
+        role: newUser.role,
+        id: newUser.id,
+        wallpapers: JSON.parse(localStorage.getItem('divisionalWallpapers') || '[]')
+      };
+      localStorage.setItem('profileData', JSON.stringify(profileData));
+
+      toast({ title: 'Success!', description: 'Signup successful! Please log in.' });
+      router.push('/?message=Signup successful! Please log in.');
+    } else if (state?.errors) {
+      if (state.errors.password) {
+        form.setError('password', { type: 'server', message: state.errors.password[0] });
+      }
     }
-
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const existingUser = users.find((u: any) => u.email === values.email);
-
-    if (existingUser) {
-      form.setError('email', { type: 'server', message: 'An account with this email already exists.' });
-      return;
-    }
-
-    const newUser = {
-      id: `user-${Date.now()}`,
-      ...values,
-      profileImage: `https://i.pravatar.cc/150?u=${values.email}`,
-      phone: '',
-    };
-
-    users.push(newUser);
-    localStorage.setItem('users', JSON.stringify(users));
-    
-    // Also create profile data store
-    const profileData = JSON.parse(localStorage.getItem('profileData') || '{}');
-    profileData[newUser.id] = {
-      name: newUser.fullName,
-      email: newUser.email,
-      phone: newUser.phone,
-      profileImage: newUser.profileImage,
-      role: newUser.role,
-      id: newUser.id,
-      wallpapers: JSON.parse(localStorage.getItem('divisionalWallpapers') || '[]')
-    };
-    localStorage.setItem('profileData', JSON.stringify(profileData));
-
-
-    toast({ title: 'Success!', description: 'Signup successful! Please log in.' });
-    router.push('/?message=Signup successful! Please log in.');
-  };
+  }, [state, form, router, toast]);
 
   return (
     <Card className="w-full max-w-md shadow-xl border-t-4 border-primary">
@@ -120,7 +119,7 @@ export function SignupForm() {
         <CardDescription className="pt-2">Join TimeWise today!</CardDescription>
       </CardHeader>
       <Form {...form}>
-        <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-6">
+        <form action={formAction} className="space-y-6">
           <CardContent className="space-y-4">
             <FormField
               control={form.control}
