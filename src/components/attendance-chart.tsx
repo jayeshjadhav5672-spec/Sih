@@ -31,7 +31,7 @@ export function AttendanceChart() {
         />
         <Bar dataKey="total" radius={[4, 4, 0, 0]}>
            {data.map((entry, index) => (
-            <Cell key={`cell-${index}`} fill={entry.total > 50 ? "hsl(var(--primary))" : "hsl(var(--accent))"} />
+            <Cell key={`cell-${index}`} fill={entry.total > 50 ? "hsl(var(--primary))" : "hsl(var(--selection))"} />
           ))}
         </Bar>
       </BarChart>
