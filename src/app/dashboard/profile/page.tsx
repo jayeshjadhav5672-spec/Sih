@@ -3,6 +3,7 @@
 import { useState, useRef } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
+import { useTheme } from "next-themes";
 import {
   ArrowLeft,
   ChevronRight,
@@ -35,6 +36,7 @@ import { Switch } from '@/components/ui/switch';
 
 
 export default function ProfilePage() {
+    const { setTheme, theme } = useTheme();
     const [profileImage, setProfileImage] = useState('https://i.pravatar.cc/150?u=ethan-carter');
     const fileInputRef = useRef<HTMLInputElement>(null);
     const [email, setEmail] = useState('ethan.carter@example.com');
@@ -245,7 +247,11 @@ export default function ProfilePage() {
                     <div className="grid gap-4 py-4">
                         <div className="flex items-center justify-between">
                             <Label htmlFor="dark-mode">Dark Mode</Label>
-                            <Switch id="dark-mode" />
+                            <Switch 
+                                id="dark-mode" 
+                                checked={theme === 'dark'}
+                                onCheckedChange={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+                            />
                         </div>
                         <div className="flex items-center justify-between">
                             <Label htmlFor="notifications">Enable Notifications</Label>
