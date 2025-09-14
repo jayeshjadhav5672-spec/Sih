@@ -1,9 +1,12 @@
+
 'use server';
 
 import { redirect } from 'next/navigation';
 import { z } from 'zod';
 import { validatePasswordStrength } from '@/ai/flows/password-strength-validation';
 
+// Note: The loginUser action is now handled on the client-side with Firebase
+// in login-form.tsx. This server action is no longer used for login.
 const loginSchema = z.object({
   email: z.string().email(),
   password: z.string().min(1, 'Password is required'),
@@ -27,6 +30,8 @@ export async function logoutUser() {
   redirect('/');
 }
 
+// Note: The core signup logic is now handled on the client-side with Firebase
+// in signup-form.tsx. This server action only performs password strength validation.
 const signupSchema = z.object({
     fullName: z.string().min(1, 'Full name is required'),
     email: z.string().email('Invalid email address'),

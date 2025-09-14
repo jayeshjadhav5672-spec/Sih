@@ -27,23 +27,18 @@ export function ForgotPasswordForm() {
     setPending(true);
     setState(null);
 
-    // Check if email exists in localStorage
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const userExists = users.some((user: any) => user.email === email);
-
-    if (!userExists) {
-        setState({ error: 'This email address is not registered.' });
-        setPending(false);
-        return;
-    }
-
     try {
+      // Firebase will check if the user exists and send the email.
+      // We no longer need to check localStorage here.
       await sendPasswordResetEmail(auth, email);
       setState({ success: true, message: "A password reset link has been sent to your email address. Please check your inbox and spam folder." });
     } catch (error: any) {
       console.error(error.code, error.message);
       if (error.code === 'auth/invalid-email') {
          setState({ error: 'Please enter a valid email address.' });
+      } else if (error.code === 'auth/user-not-found') {
+         // We show a generic message to prevent email enumeration attacks
+         setState({ success: true, message: "If an account with that email exists, a password reset link has been sent. Please check your inbox and spam folder." });
       } else {
          setState({ error: 'An unexpected error occurred. Please try again.' });
       }

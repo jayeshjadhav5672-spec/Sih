@@ -2,10 +2,12 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useActionState, useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { useFormStatus } from 'react-dom';
 import { AlertTriangle, CheckCircle2, Loader2, User, Lock, School } from 'lucide-react';
 import Link from 'next/link';
+import { signInWithEmailAndPassword } from 'firebase/auth';
+import { auth } from '@/lib/firebase';
 
 import { Button } from '@/components/ui/button';
 import {
@@ -17,7 +19,6 @@ import {
 } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { loginUser as loginUserAction } from '@/app/actions';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
@@ -45,6 +46,7 @@ export function LoginForm() {
   const [isPopoverOpen, setIsPopoverOpen] = useState(false);
   const [highlightedIndex, setHighlightedIndex] = useState(-1);
   const router = useRouter();
+  const [pending, setPending] = useState(false);
 
   const handleCollegeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const value = e.target.value;
@@ -92,18 +94,40 @@ export function LoginForm() {
     }
   };
   
-  const handleLogin = (formData: FormData) => {
+  const handleLogin = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setPending(true);
+    setError(null);
+    
+    const formData = new FormData(e.currentTarget);
     const email = formData.get('email') as string;
     const password = formData.get('password') as string;
 
-    const users = JSON.parse(localStorage.getItem('users') || '[]');
-    const user = users.find((u: any) => u.email === email && u.password === password);
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
 
-    if (user) {
-      sessionStorage.setItem('currentUser', JSON.stringify(user));
-      router.push('/dashboard');
-    } else {
-      setError('Invalid email or password.');
+      // User exists in Firebase, now find them in localStorage to get full profile
+      const users = JSON.parse(localStorage.getItem('users') || '[]');
+      const user = users.find((u: any) => u.email === email);
+      
+      if (user) {
+        sessionStorage.setItem('currentUser', JSON.stringify(user));
+        router.push('/dashboard');
+      } else {
+        // This case is unlikely if signup is also managed correctly
+        setError('Login successful, but profile not found. Please contact support.');
+      }
+    } catch (error: any) {
+        if (error.code === 'auth/user-not-found' || error.code === 'auth/wrong-password' || error.code === 'auth/invalid-credential') {
+            setError('Invalid email or password.');
+        } else if (error.code === 'auth/invalid-email') {
+            setError('Please enter a valid email address.');
+        } else {
+            setError('An unexpected error occurred. Please try again.');
+            console.error('Firebase login error:', error);
+        }
+    } finally {
+        setPending(false);
     }
   };
 
@@ -115,7 +139,7 @@ export function LoginForm() {
           <CardTitle className="text-4xl font-bold">Sign in to your account</CardTitle>
           <CardDescription className="pt-2">Welcome back! Please enter your details.</CardDescription>
         </CardHeader>
-        <form action={handleLogin}>
+        <form onSubmit={handleLogin}>
           <CardContent className="space-y-4 p-0">
             {signupMessage && (
               <Alert>
@@ -201,7 +225,10 @@ export function LoginForm() {
                 <input type="hidden" name="role" value={role} />
             </div>
             <div className="pt-4">
-                <LoginButton />
+                <Button type="submit" className="w-full" disabled={pending}>
+                  {pending && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+                  Login
+                </Button>
             </div>
              <div className="mt-4 text-center text-sm">
               Don't have an account?{' '}
