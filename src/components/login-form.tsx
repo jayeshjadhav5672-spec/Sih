@@ -1,10 +1,9 @@
 'use client';
 
 import { useSearchParams } from 'next/navigation';
-import { useActionState } from 'react';
+import { useActionState, useState } from 'react';
 import { useFormStatus } from 'react-dom';
-import { AlertTriangle, CheckCircle2, Loader2, User, Lock, School } from 'lucide-react';
-import { useState } from 'react';
+import { AlertTriangle, CheckCircle2, Loader2, User, Lock, School, Building } from 'lucide-react';
 import Link from 'next/link';
 
 import { Button } from '@/components/ui/button';
@@ -21,6 +20,8 @@ import { loginUser } from '@/app/actions';
 import { Alert, AlertDescription, AlertTitle } from '@/components/ui/alert';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { cn } from '@/lib/utils';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { collegeData } from '@/lib/college-data';
 
 function LoginButton() {
   const { pending } = useFormStatus();
@@ -37,6 +38,33 @@ export function LoginForm() {
   const searchParams = useSearchParams();
   const signupMessage = searchParams.get('message');
   const [role, setRole] = useState('student');
+  const [collegeName, setCollegeName] = useState('');
+  const [suggestions, setSuggestions] = useState<string[]>([]);
+  const [isPopoverOpen, setIsPopoverOpen] = useState(false);
+
+  const handleCollegeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = e.target.value;
+    setCollegeName(value);
+    if (value.length > 1) {
+      const filteredColleges = collegeData
+        .filter((college) =>
+          college.toLowerCase().includes(value.toLowerCase())
+        )
+        .slice(0, 5); // Limit suggestions to 5
+      setSuggestions(filteredColleges);
+      setIsPopoverOpen(filteredColleges.length > 0);
+    } else {
+      setSuggestions([]);
+      setIsPopoverOpen(false);
+    }
+  };
+
+  const handleSuggestionClick = (suggestion: string) => {
+    setCollegeName(suggestion);
+    setSuggestions([]);
+    setIsPopoverOpen(false);
+  };
+
 
   return (
     <div className="w-full max-w-md">
@@ -63,10 +91,38 @@ export function LoginForm() {
               </Alert>
             )}
             <div className="space-y-2">
-              <div className="relative">
-                <School className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
-                <Input id="college" name="college" placeholder="College Name" type="text" required className="pl-10" />
-              </div>
+               <Popover open={isPopoverOpen} onOpenChange={setIsPopoverOpen}>
+                  <PopoverTrigger asChild>
+                    <div className="relative">
+                      <School className="absolute left-3 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
+                      <Input 
+                        id="college" 
+                        name="college" 
+                        placeholder="College Name" 
+                        type="text" 
+                        required 
+                        className="pl-10" 
+                        value={collegeName}
+                        onChange={handleCollegeChange}
+                        autoComplete="off"
+                      />
+                    </div>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-[var(--radix-popover-trigger-width)] p-0">
+                     <div className="flex flex-col space-y-1">
+                      {suggestions.map((suggestion, index) => (
+                        <Button
+                          key={index}
+                          variant="ghost"
+                          className="justify-start font-normal"
+                          onClick={() => handleSuggestionClick(suggestion)}
+                        >
+                          {suggestion}
+                        </Button>
+                      ))}
+                    </div>
+                  </PopoverContent>
+                </Popover>
             </div>
             <div className="space-y-2">
               <div className="relative">
