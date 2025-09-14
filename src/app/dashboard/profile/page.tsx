@@ -151,7 +151,13 @@ export default function ProfilePage() {
             <DialogHeader>
               <DialogTitle className="text-center">Change Profile Photo</DialogTitle>
             </DialogHeader>
-            <div className="grid gap-2 py-4">
+            <div className="flex justify-center py-4">
+              <Avatar className="w-40 h-40 border-4 border-card">
+                <AvatarImage src={profileImage} alt={name} />
+                <AvatarFallback>{name.split(' ').map(n => n[0]).join('')}</AvatarFallback>
+              </Avatar>
+            </div>
+            <div className="grid gap-2">
               <DialogClose asChild>
                 <Button variant="outline" onClick={handleUploadClick}>
                   <Upload className="mr-2 h-4 w-4" />
