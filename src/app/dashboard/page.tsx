@@ -8,6 +8,7 @@ import {
   ArrowUp,
   ArrowDown,
   PlusCircle,
+  Check,
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
@@ -21,6 +22,7 @@ import { getStoredWallpapers, type ImagePlaceholder } from "@/lib/placeholder-im
 import { AttendanceChart } from "@/components/attendance-chart";
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
+import { useToast } from "@/hooks/use-toast";
 
 const initialDivisions = [
   { id: "div-a", name: "Div A", imageId: "div-a-doodles-chalkboard" },
@@ -36,12 +38,26 @@ const initialChartData = [
   { name: "Fri", total: 0 },
 ];
 
+type WeeklyAttendance = {
+  [key: string]: { present: number; total: number };
+};
+
+const getStartOfWeek = (date: Date) => {
+  const d = new Date(date);
+  const day = d.getDay();
+  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
+  return new Date(d.setDate(diff));
+};
+
+
 export default function DashboardPage() {
   const [wallpapers, setWallpapers] = useState<ImagePlaceholder[]>([]);
   const [attendance, setAttendance] = useState(0);
   const [attendanceChange, setAttendanceChange] = useState(0);
   const [chartData, setChartData] = useState(initialChartData);
+  const [currentUser, setCurrentUser] = useState<any>(null);
   const router = useRouter();
+  const { toast } = useToast();
 
   useEffect(() => {
     const userStr = sessionStorage.getItem('currentUser');
@@ -49,9 +65,10 @@ export default function DashboardPage() {
       router.push('/');
       return;
     }
+    const user = JSON.parse(userStr);
+    setCurrentUser(user);
 
     const allProfileData = JSON.parse(localStorage.getItem('profileData') || '{}');
-    const user = JSON.parse(userStr);
     const userProfile = allProfileData[user.id];
 
     if (userProfile && userProfile.wallpapers) {
@@ -60,7 +77,98 @@ export default function DashboardPage() {
       setWallpapers(getStoredWallpapers());
     }
 
+    updateAnalytics();
+
   }, [router]);
+  
+  const updateAnalytics = () => {
+    const attendanceData = JSON.parse(localStorage.getItem('weeklyAttendance') || '{}');
+    const today = new Date();
+    const weekStart = getStartOfWeek(today).toISOString().split('T')[0];
+    const currentWeekData: WeeklyAttendance = attendanceData[weekStart] || {};
+    
+    const dayMapping = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    let totalAttendance = 0;
+    let daysWithAttendance = 0;
+
+    const newChartData = initialChartData.map(day => {
+      const dayData = currentWeekData[day.name];
+      if (dayData && dayData.total > 0) {
+        const percentage = (dayData.present / dayData.total) * 100;
+        totalAttendance += percentage;
+        daysWithAttendance++;
+        return { ...day, total: parseFloat(percentage.toFixed(1)) };
+      }
+      return day;
+    });
+
+    setChartData(newChartData);
+
+    const yesterday = new Date(today);
+    yesterday.setDate(today.getDate() - 1);
+    const yesterdayDay = dayMapping[yesterday.getDay()];
+    const todayDay = dayMapping[today.getDay()];
+
+    const yesterdayAttendance = currentWeekData[yesterdayDay] ? (currentWeekData[yesterdayDay].present / currentWeekData[yesterdayDay].total) * 100 : 0;
+    const todayAttendance = currentWeekData[todayDay] ? (currentWeekData[todayDay].present / currentWeekData[todayDay].total) * 100 : 0;
+    
+    setAttendance(todayAttendance);
+    
+    if (yesterdayAttendance > 0) {
+      setAttendanceChange(((todayAttendance - yesterdayAttendance) / yesterdayAttendance) * 100);
+    } else if (todayAttendance > 0) {
+      setAttendanceChange(100);
+    } else {
+      setAttendanceChange(0);
+    }
+  };
+
+  const handleTakeAttendance = () => {
+    const today = new Date();
+    const dayMapping = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
+    const dayName = dayMapping[today.getDay()];
+
+    if (dayName === "Sat" || dayName === "Sun") {
+      toast({
+        title: "It's the weekend!",
+        description: "Attendance can only be marked on weekdays.",
+        variant: "destructive"
+      });
+      return;
+    }
+    
+    const weekStart = getStartOfWeek(today).toISOString().split('T')[0];
+    const attendanceData = JSON.parse(localStorage.getItem('weeklyAttendance') || '{}');
+
+    if (!attendanceData[weekStart]) {
+      attendanceData[weekStart] = {};
+    }
+
+    if (!attendanceData[weekStart][dayName]) {
+      attendanceData[weekStart][dayName] = { present: 0, total: 0 };
+    }
+    
+    // Assuming a class size of 30 for this simulation
+    const totalStudents = 30;
+    const currentPresent = attendanceData[weekStart][dayName].present;
+    
+    if (currentPresent < totalStudents) {
+      attendanceData[weekStart][dayName].present += 1;
+    }
+    
+    if (attendanceData[weekStart][dayName].total < totalStudents) {
+        attendanceData[weekStart][dayName].total = totalStudents;
+    }
+
+    localStorage.setItem('weeklyAttendance', JSON.stringify(attendanceData));
+    
+    toast({
+        title: "Attendance Marked",
+        description: `One student marked as present for ${dayName}.`
+    });
+
+    updateAnalytics();
+  };
 
   return (
     <div className="p-4 md:p-6 space-y-6">
@@ -73,13 +181,19 @@ export default function DashboardPage() {
         </Link>
       </header>
       
-      <section>
+      <section className="grid grid-cols-1 md:grid-cols-2 gap-4">
         <Link href="/dashboard/notifications" passHref>
           <Button className="w-full" size="lg">
             <PlusCircle className="mr-2 h-5 w-5" />
             Request Substitution
           </Button>
         </Link>
+        {currentUser?.role === 'teacher' && (
+          <Button className="w-full" size="lg" variant="secondary" onClick={handleTakeAttendance}>
+             <Check className="mr-2 h-5 w-5" />
+             Take Attendance
+          </Button>
+        )}
       </section>
 
       <section>
@@ -116,13 +230,12 @@ export default function DashboardPage() {
         <h2 className="text-xl font-semibold mb-3">Analytics</h2>
         <Card>
           <CardHeader>
-            <CardDescription>Attendance</CardDescription>
+            <CardDescription>Today's Attendance</CardDescription>
             <div className="flex items-baseline gap-2">
-               <CardTitle className="text-4xl font-bold">{attendance}%</CardTitle>
+               <CardTitle className="text-4xl font-bold">{attendance.toFixed(1)}%</CardTitle>
                <div className={`flex items-center text-sm font-medium ${attendanceChange >= 0 ? 'text-green-500' : 'text-red-500'}`}>
                   {attendanceChange >= 0 ? <ArrowUp className="h-4 w-4" /> : <ArrowDown className="h-4 w-4" />}
-                  <span>{Math.abs(attendanceChange).toFixed(1)}%</span>
-                  <span className="text-muted-foreground ml-2">Last 7 Days</span>
+                  <span>{Math.abs(attendanceChange).toFixed(1)}% vs yesterday</span>
                </div>
             </div>
           </CardHeader>
