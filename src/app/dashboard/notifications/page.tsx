@@ -48,14 +48,14 @@ export default function NotificationsPage() {
     }, []);
 
     const handleSendRequest = () => {
-        if (note.trim()) {
+        if (note.trim() && currentUser) {
             const newSub: SubstitutionRequest = {
                 id: `sub-${Date.now()}`,
                 timestamp: Date.now(),
                 status: 'Pending',
                 notes: note,
-                requesterId: currentUser?.id,
-                requesterName: currentUser?.fullName || 'A Teacher',
+                requesterId: currentUser.id,
+                requesterName: currentUser.fullName || 'A Teacher',
             };
             
             toast({
@@ -70,6 +70,12 @@ export default function NotificationsPage() {
             localStorage.setItem('substitutions', JSON.stringify(updatedSubs));
 
             setIsDialogOpen(false);
+        } else if (!currentUser) {
+           toast({
+              title: "Not logged in",
+              description: "You must be logged in to make a request.",
+              variant: "destructive"
+            });
         } else {
            toast({
               title: "Note is empty",
